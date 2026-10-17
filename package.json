@@ -1,1 +1,1 @@
-{"name":"morph-chess","version":"0.1.0","private":true,"type":"module","scripts":{"dev":"vite --host 127.0.0.1","build":"vite build","bake:veins":"node scripts/bake-gem-veins.mjs"},"dependencies":{"three":"^0.180.0","vite":"^7.1.7"}}
+{"name":"morph-chess","version":"0.1.0","license":"MIT","private":true,"type":"module","scripts":{"dev":"vite --host 127.0.0.1","build":"vite build","bake:veins":"node scripts/bake-gem-veins.mjs"},"dependencies":{"three":"^0.180.0","vite":"^7.1.7"}}

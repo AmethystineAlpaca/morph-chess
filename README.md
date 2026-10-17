@@ -43,3 +43,7 @@ Built with Three.js and Vite. Run `npm run build` for a production build.
 The GIFs are captured from the project's actual models and shaders. Capture tools live in [`scripts/readme/`](scripts/readme/).
 
 </details>
+
+## License
+
+[MIT](LICENSE) © 2026 AmethystineAlpaca. Third-party dependencies retain their respective licenses.
