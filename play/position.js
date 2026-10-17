@@ -11,12 +11,15 @@ export function initialPosition(available) {
   }
   return pieces;
 }
-// Free arrangement: occupied destinations exchange places, without capturing.
+// Free movement: empty squares or opposing pieces only; allies stay in place.
+// There are deliberately no turns, legal-move checks, or king restrictions.
 export function movePiece(pieces, id, file, rank) {
   const piece = pieces.find(item => item.id === id);
   if (!piece || !Number.isInteger(file) || !Number.isInteger(rank) || file < 0 || file > 7 || rank < 0 || rank > 7) return false;
+  if (piece.file === file && piece.rank === rank) return false;
   const other = pieces.find(item => item !== piece && item.file === file && item.rank === rank);
-  if (other) [other.file, other.rank] = [piece.file, piece.rank];
+  if (other?.side === piece.side) return false;
+  if (other) pieces.splice(pieces.indexOf(other), 1);
   [piece.file, piece.rank] = [file, rank];
   return true;
 }

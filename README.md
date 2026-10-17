@@ -1,6 +1,15 @@
-# Morph Chess
+![Morph Chess — ruby and sapphire pieces on the Dusk Mirror board](docs/media/morph-chess-cover.png)
+
+[![Demo: Watch video](https://img.shields.io/badge/Demo-Watch_video-8B6CB8?style=flat&labelColor=292834)](#full-recording)
+[![Platform: Web](https://img.shields.io/badge/Platform-Web-447DA7?style=flat&labelColor=292834)](#run-locally)
+[![3D: Three.js](https://img.shields.io/badge/3D-Three.js-B29660?style=flat&logo=threedotjs&logoColor=white&labelColor=292834)](https://threejs.org/)
+[![Code license: MIT](https://img.shields.io/badge/Code-MIT-537F69?style=flat&labelColor=292834)](LICENSE)
 
 A visual playground for chessboards and chess pieces. Morph Chess explores sculpted forms, rich materials, reflections, refraction, and light—with the focus currently on board and piece design. More features will follow as the project grows.
+
+Added piece-shattering effects.
+
+![A gold-trimmed sapphire king on the left and an untrimmed ruby knight on the right shattering together](docs/media/piece-shattering.gif)
 
 ## Ruby × Dusk Mirror
 
@@ -21,6 +30,10 @@ The same six silhouettes, accented with polished champagne-gold inlays.
 Ruby and sapphire pieces with polished champagne-gold inlays, paired with midnight-blue stone and celestial metalwork.
 
 ![Night Oath pieces on Midnight Silver, viewed through a full 360-degree orbit](docs/media/night-oath-midnight-silver.gif)
+
+## Full recording
+
+[Watch the full piece-shattering demo with sound](docs/media/piece-shattering-demo.mp4).
 
 ## Run locally
 
@@ -48,17 +61,32 @@ npm run dev -- --open '/?board=midnight-silver&pieces=night-oath'
 
 These previews run on your own computer. Keep the terminal running while using the board.
 
-Drag to orbit, scroll to zoom, and select a piece followed by a square to rearrange the board. The current build is a design sandbox; chess rules and full gameplay are still to come.
+**Interactive piece gallery**
+
+```sh
+npm run dev -- --open '/pieces/ruby/'
+```
+
+Choose Ruby or Night Oath, ruby or sapphire, and any of the six pieces in the
+collection panel. Drag to rotate and scroll to zoom. Click the piece to shatter
+it with synchronized glass sounds; click the debris to restore it. On a narrow
+screen, open **Choose a piece** to switch pieces. With the scene focused, Enter or
+Space shatters/restores and Escape restores. Both original piece-viewer links
+and the original shatter-demo link open this gallery.
+
+Drag to orbit, scroll to zoom, and select a piece followed by an empty square to move it. Click an opposing piece to capture it: it shatters, your piece takes its square while the fragments are still falling, and the debris fades after the glass sound ends. Clicking another piece on the same side only selects it, without movement, shattering, or sound. There are no turns or chess move restrictions.
+
+Use the top toolbar for 3D/top views and sound. **Customize** lets you choose a board and piece set, then apply the change to start a fresh board. The action card shows the selected piece and destination; phones start in top view. You can also Tab to the board, navigate squares with arrow keys, select or move with Enter/Space, and deselect with Esc. The labelled HTML grid stays synchronized with the 3D pieces for assistive tools.
 
 Built with Three.js and Vite. Run `npm run build` for a production build.
 
 <details>
 <summary>Behind the visuals</summary>
 
-The GIFs are captured from the project's actual models and shaders. Capture tools live in [`scripts/readme/`](scripts/readme/).
+The cover and GIFs are captured from the project's actual models and shaders. Capture tools live in [`scripts/readme/`](scripts/readme/).
 
 </details>
 
 ## License
 
-[MIT](LICENSE) © 2026 AmethystineAlpaca. Third-party dependencies retain their respective licenses.
+[MIT](LICENSE) © 2026 AmethystineAlpaca. Third-party dependencies and audio assets retain their respective licenses. The [glass sound credits](pieces/ruby/audio/README.md) include a CC BY-NC 4.0 recording restricted to noncommercial use; the [movement sound](play/audio/CREDITS.txt) is CC0.

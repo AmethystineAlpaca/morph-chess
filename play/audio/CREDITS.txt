@@ -1,0 +1,11 @@
+crystal-move.wav
+
+Source: "Moving crystal against hard surface" by hedonfire
+https://freesound.org/people/hedonfire/sounds/651944/
+License: CC0 1.0
+https://creativecommons.org/publicdomain/zero/1.0/
+
+Derived from the public HQ preview. Selected recording segment: 1.170–1.305s.
+Edited to a single contact, with short boundary fades, mild EQ and gain.
+The mono recording is copied identically to L/R for centered playback.
+Non-audio container metadata has been removed; the selected sound samples are unchanged.
