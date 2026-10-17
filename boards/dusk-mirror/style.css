@@ -1,0 +1,4 @@
+.dusk{background:#202431;color:#e2d6df;font-family:Arial,"PingFang SC",sans-serif}
+.dusk canvas{cursor:grab}
+.dusk canvas:active{cursor:grabbing}
+.dusk #error{inset:40% 20%;height:max-content;background:#2d1824;border:1px solid #c16c88;color:#eed1de;font-size:14px}

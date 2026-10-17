@@ -1,0 +1,56 @@
+# Dependencies, builds and local tooling
+node_modules/
+dist/
+coverage/
+.vite/
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+.vscode/
+.codex/
+
+# Credentials and local configuration
+.env
+.env.*
+!.env.example
+!.env.sample
+.npmrc
+.netrc
+credentials*.json
+secrets*.json
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+*.sqlite*
+*.db
+
+# Private working history, conversations and recovery archives
+/tmp/
+/versions/
+/定稿存档/
+/设定图/
+/设定图集/
+/output/
+/concept-art/
+/docs/design-history.md
+/scripts/build-design-timeline*.py
+/scripts/design-timeline*-template.html
+**/APPROVED.txt
+**/APPROVED-SHA256.json
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.bak
+
+# Historical design screenshots (the README showcase is in docs/media/)
+/previews/*.png
+/previews/*.jpg
+/boards/*/preview*.png
+/boards/*/previews/
+/pieces/*/previews/
+/pieces/*/references/

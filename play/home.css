@@ -1,0 +1,4 @@
+.home #scene{cursor:grab}
+.home #scene:active{cursor:grabbing}
+.home.midnight #app{background:#1e1f22}
+.home.dusk #app{background:#000}
