@@ -2,25 +2,25 @@
 
 A visual playground for chessboards and chess pieces. Morph Chess explores sculpted forms, rich materials, reflections, refraction, and light—with the focus currently on board and piece design. More features will follow as the project grows.
 
-## Night Oath × Midnight Silver
-
-Ruby and sapphire pieces with polished champagne-gold inlays, paired with midnight-blue stone and celestial metalwork.
-
-![Night Oath pieces on Midnight Silver, viewed through a full 360-degree orbit](docs/media/night-oath-midnight-silver.gif)
-
-All six pieces, rotating together in both colors: King, Queen, Bishop, Knight, Rook, and Pawn.
-
-![All six Night Oath pieces in ruby and sapphire, each rotating through 360 degrees](docs/media/night-oath-pieces.gif)
-
 ## Ruby × Dusk Mirror
 
 Pure gemstone forms on smoky black crystal, with deep red light beneath the board and reflections across its surface.
 
 ![Ruby pieces on Dusk Mirror, viewed through a full 360-degree orbit](docs/media/ruby-dusk-mirror.gif)
 
-The same six silhouettes, with uninterrupted gemstone surfaces.
+All six pieces, rotating together in both colors: King, Queen, Bishop, Knight, Rook, and Pawn.
 
 ![All six Ruby-set pieces in ruby and sapphire, each rotating through 360 degrees](docs/media/ruby-pieces.gif)
+
+## Night Oath × Midnight Silver
+
+Ruby and sapphire pieces with polished champagne-gold inlays, paired with midnight-blue stone and celestial metalwork.
+
+![Night Oath pieces on Midnight Silver, viewed through a full 360-degree orbit](docs/media/night-oath-midnight-silver.gif)
+
+The same six silhouettes, accented with polished champagne-gold inlays.
+
+![All six Night Oath pieces in ruby and sapphire, each rotating through 360 degrees](docs/media/night-oath-pieces.gif)
 
 ## Run locally
 
@@ -34,16 +34,16 @@ npm install
 
 Then run one of the following commands to start the local server and open a preview in your browser.
 
-**Night Oath × Midnight Silver**
-
-```sh
-npm run dev -- --open '/?board=midnight-silver&pieces=night-oath'
-```
-
 **Ruby × Dusk Mirror**
 
 ```sh
 npm run dev -- --open '/?board=dusk-mirror&pieces=ruby'
+```
+
+**Night Oath × Midnight Silver**
+
+```sh
+npm run dev -- --open '/?board=midnight-silver&pieces=night-oath'
 ```
 
 These previews run on your own computer. Keep the terminal running while using the board.
