@@ -4,23 +4,23 @@ A visual playground for chessboards and chess pieces. Morph Chess explores sculp
 
 ## Ruby × Dusk Mirror
 
-Pure gemstone forms on smoky black crystal, with deep red light beneath the board and reflections across its surface.
-
-![Ruby pieces on Dusk Mirror, viewed through a full 360-degree orbit](docs/media/ruby-dusk-mirror.gif)
-
 All six pieces, rotating together in both colors: King, Queen, Bishop, Knight, Rook, and Pawn.
 
 ![All six Ruby-set pieces in ruby and sapphire, each rotating through 360 degrees](docs/media/ruby-pieces.gif)
 
+Pure gemstone forms on smoky black crystal, with deep red light beneath the board and reflections across its surface.
+
+![Ruby pieces on Dusk Mirror, viewed through a full 360-degree orbit](docs/media/ruby-dusk-mirror.gif)
+
 ## Night Oath × Midnight Silver
-
-Ruby and sapphire pieces with polished champagne-gold inlays, paired with midnight-blue stone and celestial metalwork.
-
-![Night Oath pieces on Midnight Silver, viewed through a full 360-degree orbit](docs/media/night-oath-midnight-silver.gif)
 
 The same six silhouettes, accented with polished champagne-gold inlays.
 
 ![All six Night Oath pieces in ruby and sapphire, each rotating through 360 degrees](docs/media/night-oath-pieces.gif)
+
+Ruby and sapphire pieces with polished champagne-gold inlays, paired with midnight-blue stone and celestial metalwork.
+
+![Night Oath pieces on Midnight Silver, viewed through a full 360-degree orbit](docs/media/night-oath-midnight-silver.gif)
 
 ## Run locally
 
