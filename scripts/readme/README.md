@@ -17,7 +17,7 @@ Frames and capture reports go to `tmp/readme-frames/`. The capture page is separ
 
 ## Cover banner
 
-The README opens with a 1800 × 600 PNG rendered from the Ruby pieces and Dusk Mirror board, with the project title and no gameplay UI. With the dev server running and Playwright installed as above, regenerate it with:
+The README opens with a 1800 × 440 PNG rendered from the Ruby pieces and Dusk Mirror board, with the project title and no gameplay UI. With the dev server running and Playwright installed as above, regenerate it with:
 
 ```sh
 PLAYWRIGHT_MODULE="$PWD/tmp/readme-tools/node_modules/playwright" \

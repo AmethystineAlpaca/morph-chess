@@ -7,6 +7,8 @@
 
 A visual playground for chessboards and chess pieces. Morph Chess explores sculpted forms, rich materials, reflections, refraction, and light—with the focus currently on board and piece design. More features will follow as the project grows.
 
+**We design our own chess pieces for Morph Chess**, from their silhouettes and proportions to gemstone materials and metal inlays. [Explore the concept art and design sheets →](docs/design/README.md)
+
 Added piece-shattering effects.
 
 ![A gold-trimmed sapphire king on the left and an untrimmed ruby knight on the right shattering together](docs/media/piece-shattering.gif)

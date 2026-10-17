@@ -18,8 +18,8 @@ controls.enabled = false;
 controls.enableDamping = false;
 controls.target.set(0, .25, 0);
 camera.position.set(6.6, 10.6, 12.9);
-camera.zoom = .98;
-camera.setViewOffset(innerWidth, innerHeight, innerWidth * .16, -4, innerWidth, innerHeight);
+camera.zoom = 1.13;
+camera.setViewOffset(innerWidth, innerHeight, 0, 45, innerWidth, innerHeight);
 camera.updateProjectionMatrix();
 controls.update();
 // Fix the subtle floor animation so every render has the same background.
