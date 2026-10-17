@@ -26,12 +26,27 @@ The same six silhouettes, with uninterrupted gemstone surfaces.
 
 Requires Node.js 20.19+ or 22.12+.
 
+From the project directory, install dependencies:
+
 ```sh
 npm install
-npm run dev
 ```
 
-Open [Night Oath × Midnight Silver](http://127.0.0.1:5173/?board=midnight-silver&pieces=night-oath) or [Ruby × Dusk Mirror](http://127.0.0.1:5173/?board=dusk-mirror&pieces=ruby).
+Then run one of the following commands to start the local server and open a preview in your browser.
+
+**Night Oath × Midnight Silver**
+
+```sh
+npm run dev -- --open '/?board=midnight-silver&pieces=night-oath'
+```
+
+**Ruby × Dusk Mirror**
+
+```sh
+npm run dev -- --open '/?board=dusk-mirror&pieces=ruby'
+```
+
+These previews run on your own computer. Keep the terminal running while using the board.
 
 Drag to orbit, scroll to zoom, and select a piece followed by a square to rearrange the board. The current build is a design sandbox; chess rules and full gameplay are still to come.
 
