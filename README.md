@@ -1,5 +1,14 @@
+# Morph Chess
+
+## [▶ 在线体验 / Live Demo](https://amethystinealpaca.github.io/morph-chess/)
+
+Open the link and play in your browser — no download, installation, or commands required. Desktop and mobile supported. Sound starts after your first interaction; use the sound button to mute it.
+
+[**Ruby × Dusk Mirror**](https://amethystinealpaca.github.io/morph-chess/?board=dusk-mirror&pieces=ruby) · [**Night Oath × Midnight Silver**](https://amethystinealpaca.github.io/morph-chess/?board=midnight-silver&pieces=night-oath) · [**Interactive piece gallery**](https://amethystinealpaca.github.io/morph-chess/pieces/ruby/)
+
 ![Morph Chess — ruby and sapphire pieces on the Dusk Mirror board](docs/media/morph-chess-cover.png)
 
+[![Live Demo](https://img.shields.io/badge/Play-Live_Demo-537F69?style=flat&labelColor=292834)](https://amethystinealpaca.github.io/morph-chess/)
 [![Demo: Watch video](https://img.shields.io/badge/Demo-Watch_video-8B6CB8?style=flat&labelColor=292834)](#full-recording)
 [![Platform: Web](https://img.shields.io/badge/Platform-Web-447DA7?style=flat&labelColor=292834)](#run-locally)
 [![3D: Three.js](https://img.shields.io/badge/3D-Three.js-B29660?style=flat&logo=threedotjs&logoColor=white&labelColor=292834)](https://threejs.org/)
@@ -36,6 +45,14 @@ Ruby and sapphire pieces with polished champagne-gold inlays, paired with midnig
 ## Full recording
 
 [Watch the full piece-shattering demo with sound](docs/media/piece-shattering-demo.mp4).
+
+## Deployment
+
+GitHub Pages serves the production build at `/morph-chess/`. Every push to `main` runs the tests, builds with `npm ci` + `npm run build`, and deploys only `dist/` using standard GitHub-hosted Ubuntu runners. The workflow can also be run manually from Actions. No server, custom domain, paid plan, or running local computer is needed.
+
+For a new fork, enable **Settings → Pages → Source: GitHub Actions** and update the production `base` in `vite.config.js`, the matching path in `scripts/check-dist.mjs`, and demo links for your repository name. To check the production subpath locally, run `npm run build` then `npm run preview` and open `http://127.0.0.1:4173/morph-chess/`.
+
+This is a noncommercial showcase. Published builds retain the [glass sound credits](https://amethystinealpaca.github.io/morph-chess/pieces/ruby/audio/README.md), [movement sound credits](https://amethystinealpaca.github.io/morph-chess/play/audio/CREDITS.txt), project license, and third-party license notices.
 
 ## Run locally
 

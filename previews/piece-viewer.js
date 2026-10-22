@@ -37,7 +37,7 @@ export function mountPieceViewer(initialSet = rubySet) {
     <h1 class="sr-only">Interactive chess piece collection</h1>
     <canvas id="scene" tabindex="0" role="button" aria-describedby="gesture-hint gesture-secondary" aria-keyshortcuts="Enter Space Escape"></canvas>
     <nav class="gallery-tools" aria-label="Gallery options">
-      <a id="back-to-board" class="tool-button" href="/?pieces=${set.id}" title="Back to board" aria-label="Back to board"><span aria-hidden="true">←</span><span>Board</span></a>
+      <a id="back-to-board" class="tool-button" href="${import.meta.env.BASE_URL}?pieces=${set.id}" title="Back to board" aria-label="Back to board"><span aria-hidden="true">←</span><span>Board</span></a>
       <button id="sound" class="tool-button" aria-label="Sound" aria-pressed="true" title="Loading sound" disabled>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="sound-waves" d="M17 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/><path class="sound-muted" d="m17 9 5 6m0-6-5 6"/></svg>
         <span id="sound-label">Sound</span>
@@ -156,10 +156,10 @@ export function mountPieceViewer(initialSet = rubySet) {
     $('#piece-gallery').dataset.color = color;
     const backQuery = new URLSearchParams({ pieces: set.id });
     if (query.has('board')) backQuery.set('board', query.get('board'));
-    $('#back-to-board').href = `/?${backQuery}`;
+    $('#back-to-board').href = `${import.meta.env.BASE_URL}?${backQuery}`;
     document.title = `${FRACTURE_PIECES.find(piece => piece.type === type).name} · ${set.name} · Morph Chess`;
     const url = new URL(location.href);
-    url.pathname = `/pieces/${set.id}/`;
+    url.pathname = `${import.meta.env.BASE_URL}pieces/${set.id}/`;
     url.searchParams.delete('set'); url.searchParams.set('piece', type); url.searchParams.set('color', color);
     history.replaceState(null, '', url);
   }

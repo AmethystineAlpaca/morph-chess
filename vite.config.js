@@ -1,7 +1,23 @@
 import { defineConfig } from 'vite';
 import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
 
-export default defineConfig({
+export default defineConfig(({ command, isPreview }) => ({
+  // Development stays at /; production matches the GitHub project site.
+  base: command === 'build' || isPreview ? '/morph-chess/' : '/',
+  plugins: [{
+    name: 'publish-credits',
+    generateBundle() {
+      // Publish only explicit license/credit files, never the project directory.
+      for (const [fileName, source] of [
+        ['LICENSE', './LICENSE'],
+        ['pieces/ruby/audio/README.md', './pieces/ruby/audio/README.md'],
+        ['play/audio/CREDITS.txt', './play/audio/CREDITS.txt'],
+        ['licenses/three.txt', './node_modules/three/LICENSE'],
+        ['licenses/vite.txt', './node_modules/vite/LICENSE.md'],
+      ]) this.emitFile({ type: 'asset', fileName, source: readFileSync(new URL(source, import.meta.url)) });
+    },
+  }],
   build: {
     rollupOptions: {
       input: {
@@ -16,4 +32,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));

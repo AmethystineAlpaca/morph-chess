@@ -19,7 +19,7 @@ export function mountBoard({createOverlay, interactive=false}={}) {
   <aside aria-label="Board settings" hidden>
     <label for="board-view">View</label><select id="board-view"><option value="perspective">Perspective</option><option value="top">Top</option><option value="detail">Inlay detail</option><option value="edge">Edge detail</option><option value="custom" disabled>Custom view</option></select>
     <details class="advanced-settings"><summary>Appearance</summary><label for="finish">Stone roughness <output id="finish-value">24%</output></label><input id="finish" type="range" min="12" max="65" value="24"><label class="toggle"><input id="ornament" type="checkbox" checked> Show inlays</label></details>
-    <nav class="settings-links"><a href="/?board=midnight-silver">Free Play</a><a href="/pieces/ruby/">View pieces</a></nav>
+    <nav class="settings-links"><a href="${import.meta.env.BASE_URL}?board=midnight-silver">Free Play</a><a href="${import.meta.env.BASE_URL}pieces/ruby/">View pieces</a></nav>
   </aside>
   <footer><span>Drag to rotate · Scroll to zoom</span></footer><div id="error" hidden></div>`;
   let dirty=true;

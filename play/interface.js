@@ -51,7 +51,7 @@ export function mountPlayInterface({ board, pieces, boards, pieceSets, context, 
       <div><dt>Camera</dt><dd>Drag to orbit. Scroll or pinch to zoom.</dd></div>
       <div><dt>Keyboard</dt><dd>Tab to the board. Arrow keys to navigate, Enter to choose, Esc to deselect.</dd></div></dl>
     </details>
-    <nav class="settings-links"><a href="/pieces/${pieces.id}/?board=${board.id}">Explore the pieces ${svg('arrow')}</a></nav>`;
+    <nav class="settings-links"><a href="${import.meta.env.BASE_URL}pieces/${pieces.id}/?board=${board.id}">Explore the pieces ${svg('arrow')}</a></nav>`;
   const controls = mountControls(panel);
   const toggle = controls.querySelector('summary');
   toggle.querySelector('span').textContent = 'Customize';

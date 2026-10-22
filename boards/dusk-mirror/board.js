@@ -30,7 +30,7 @@ export function mountBoard({ createOverlay, interactive=false } = {}) {
       <label for="veil">Smoky crystal depth <output id="veil-value">55%</output></label><input id="veil" type="range" min="0" max="100" value="55">
       </details>
       <div class="settings-row"><button id="pause" aria-pressed="false">Pause animation</button><button id="reset" title="Restore default settings and perspective view">Reset defaults</button></div>
-      <nav class="settings-links"><a href="/?board=dusk-mirror">Free Play</a><a href="/boards/dusk-mirror/${createOverlay ? '' : '?pieces=ruby'}">${createOverlay ? 'Board only' : 'Show pieces'}</a><a href="${reference}" target="_blank" rel="noopener">Reference image</a></nav>
+      <nav class="settings-links"><a href="${import.meta.env.BASE_URL}?board=dusk-mirror">Free Play</a><a href="${import.meta.env.BASE_URL}boards/dusk-mirror/${createOverlay ? '' : '?pieces=ruby'}">${createOverlay ? 'Board only' : 'Show pieces'}</a><a href="${reference}" target="_blank" rel="noopener">Reference image</a></nav>
     </aside>
     <footer><span>Drag to rotate · Scroll to zoom · Two-finger drag to pan</span></footer>
     <div id="error" role="alert" hidden></div>`;

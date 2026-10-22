@@ -59,7 +59,7 @@ function select(set) {
   active = models.get(set.id); scene.add(active);
   document.querySelector('#inlaid').setAttribute('aria-pressed', set === nightOathSet);
   document.querySelector('#original').setAttribute('aria-pressed', set === rubySet);
-  document.querySelectorAll('.labels a').forEach((link, i) => { link.href = `/pieces/${set.id}/?piece=${types[i]}`; });
+  document.querySelectorAll('.labels a').forEach((link, i) => { link.href = `${import.meta.env.BASE_URL}pieces/${set.id}/?piece=${types[i]}`; });
   render();
 }
 document.querySelector('#inlaid').onclick = () => select(nightOathSet);
