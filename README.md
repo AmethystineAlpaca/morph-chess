@@ -1,6 +1,6 @@
 # Morph Chess
 
-## [▶ 在线体验 / Live Demo](https://amethystinealpaca.github.io/morph-chess/)
+## [▶ Live Demo](https://amethystinealpaca.github.io/morph-chess/)
 
 Open the link and play in your browser — no download, installation, or commands required. Desktop and mobile supported. Sound starts after your first interaction; use the sound button to mute it.
 
