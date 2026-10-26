@@ -91,3 +91,8 @@ canvas { display: block; width: 100vw; height: 100dvh; touch-action: none; curso
   .piece-options button { height: 60px; gap: 4px; }
   .piece-symbol { font-size: 25px; }
 }
+#gallery-lighting{padding-bottom:16px;margin-bottom:16px;border-bottom:1px solid #ffffff18}
+#collection-panel{width:250px;right:22px;padding:18px 16px}
+.panel-heading{margin-bottom:18px}.piece-options button{height:64px;gap:5px}.piece-symbol{font-size:27px}.theme-options button{padding:10px}
+.inspect-options{display:grid;grid-template-columns:1fr 1fr;gap:7px}.inspect-options button{min-height:40px;font-size:11px;border:1px solid #ffffff26;border-radius:9px;background:#ffffff05}.inspect-options button:hover{background:#ffffff12;border-color:#ffffff55}.inspect-options button[aria-pressed=true]{background:var(--selected);border-color:var(--selected-border);color:var(--accent)}
+@media(max-width:800px){#collection-panel{right:16px;width:250px}.gem-effect-description{display:none}#gallery-lighting{padding-bottom:12px;margin-bottom:12px}.panel-heading{margin-bottom:12px}}

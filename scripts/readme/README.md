@@ -39,3 +39,22 @@ node scripts/readme/prepare-shatter.mjs '/absolute/path/to/recording.mov'
 This requires only Node.js and FFmpeg. Lossless intermediate clips stay in `tmp/readme-shatter/`; the finished GIFs and the 1440-pixel-wide MP4 go to `docs/media/`.
 
 The MP4 omits recording metadata and silences audio outside the five shatter events. Its picture remains complete, and the glass effects retain their original timing.
+
+## Original / Brilliance and the fragment orbit
+
+`capture-brilliance.mjs` records the real Pieces View, including the existing gemstone shaders, baked fracture motion, floor reflections, bloom and antialiasing. It adds a capture hook only to the browser's intercepted gallery module response; no production source files are changed. The hook freezes real-time playback and samples the same fragment simulation at deterministic times. Only the normal gallery controls are hidden, with a small caption added for the GIF.
+
+With the dev server running and the same Playwright / Gifsicle tools installed above:
+
+```sh
+PLAYWRIGHT_MODULE="$PWD/tmp/readme-tools/node_modules/playwright" \
+GIFSICLE="$PWD/tmp/readme-tools/node_modules/.bin/gifsicle" \
+node scripts/readme/capture-brilliance.mjs
+```
+
+- `docs/media/original-vs-brilliance.gif`: eight seconds, with the same ruby king and camera path shown first in Original and then in Brilliance.
+- `docs/media/brilliance-shatter-orbit.gif`: twelve seconds, starting with an intact Brilliance ruby king, showing the fracture and settling, then a full orbit around the stationary fragments at varying elevations. The camera follows the collapse down to the floor; the fragments remain visible throughout the orbit.
+
+Both GIFs are 800 × 600 pixels at 15 fps, captured from a 960 × 720 gallery viewport with 1.5× pixel density. PNG source frames and reports stay in `tmp/readme-brilliance/`. They are silent visual demos; the separate full-recording MP4 retains glass audio.
+
+Use `--stills` to inspect the framing and highlights first, `--encode-only` to regenerate GIFs from existing frames, or `--only=brilliance-shatter-orbit` / `--only=original-vs-brilliance` to record one GIF. `CAPTURE_ORIGIN` overrides the dev-server address. FFmpeg creates a 256-color palette; Gifsicle optimizes the result. These captures do not require a source MOV.

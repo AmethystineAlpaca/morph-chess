@@ -8,7 +8,7 @@ import { FractureAudio } from '../pieces/ruby/fracture-audio.js';
 import { prepareCaptureEffect, SILENT_BREAK_DURATION } from './capture-effect.js';
 
 const names = { pawn: 'Pawn', rook: 'Rook', knight: 'Knight', bishop: 'Bishop', queen: 'Queen', king: 'King' };
-export function attachTable({ scene, renderer, camera, controls, sampleHeight, invalidate = () => {} }, pieceSet, onChange, { appearance } = {}) {
+export function attachTable({ scene, renderer, camera, controls, sampleHeight, gemEffects, invalidate = () => {} }, pieceSet, onChange, { appearance } = {}) {
   let game = new ChessGame();
   let pieces = game.pieces.map(p => ({ ...p }));
   let phase = 'idle', humanSide = 'white', difficulty = 'casual', engine = null;
@@ -42,6 +42,7 @@ export function attachTable({ scene, renderer, camera, controls, sampleHeight, i
   const createPiece = tablePieceFactory(pieceSet, renderer, appearance);
   function addPiece(piece) {
     const model = createPiece(piece.type,piece.side,piece.id);
+    gemEffects?.apply(model);
     const group = new THREE.Group();
     group.add(model);
     // Replace display angles with board-facing poses. The knight's muzzle is
@@ -180,7 +181,7 @@ export function attachTable({ scene, renderer, camera, controls, sampleHeight, i
     if (version !== generation) return;
     let effect;
     try {
-      effect = await prepareCaptureEffect(objects.get(target.id).children[0], target, { renderer, camera, scene, appearance });
+      effect = await prepareCaptureEffect(objects.get(target.id).children[0], target, { renderer, camera, scene, appearance, gemEffects });
     } catch (error) {
       if (version !== generation) return;
       finishAnimation(result);

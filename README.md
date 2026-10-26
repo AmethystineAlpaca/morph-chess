@@ -2,7 +2,7 @@
 
 ## [▶ Live Demo](https://amethystinealpaca.github.io/morph-chess/)
 
-**Play against Stockfish AI directly in your browser.** Open the live demo on desktop or mobile — no download, installation, account, or local deployment required. The AI runs in your browser, too.
+**Play against Stockfish AI directly in your browser.** Open the live demo on desktop or mobile — no download, installation, account, or local deployment required. The AI runs in your browser, too. The default pairing is **Ruby × Dusk Mirror**.
 
 [**Ruby × Dusk Mirror**](https://amethystinealpaca.github.io/morph-chess/?board=dusk-mirror&pieces=ruby) · [**Night Oath × Midnight Silver**](https://amethystinealpaca.github.io/morph-chess/?board=midnight-silver&pieces=night-oath) · [**Interactive piece gallery**](https://amethystinealpaca.github.io/morph-chess/pieces/ruby/)
 
@@ -28,9 +28,30 @@
 
 **We design our own chess pieces for Morph Chess**, from their silhouettes and proportions to gemstone materials and metal inlays. [Explore the concept art and design sheets →](docs/design/README.md)
 
-Captures bring the board to life with piece-shattering effects.
+## Original or Brilliance
 
-![A gold-trimmed sapphire king on the left and an untrimmed ruby knight on the right shattering together](docs/media/piece-shattering.gif)
+Switch between two gemstone lighting modes on **both the chessboard and Pieces View**:
+
+- **Original** — the default gemstone lighting, with deep color and polished reflections.
+- **Brilliance** — brighter facet reflections, subtle color dispersion, and a glow around intense highlights. The effect follows the gemstones into their shattered fragments.
+
+Change the lighting while you play: **your game, move history, selected piece, and camera stay in place**.
+
+![The same ruby king rotating under Original lighting, then Brilliance, with the same camera path](docs/media/original-vs-brilliance.gif)
+
+## Explore the Pieces up close
+
+Open **Explore the Pieces** at the top center of the board. It opens the [interactive piece gallery](https://amethystinealpaca.github.io/morph-chess/pieces/ruby/) in a new tab, so your game stays open while you inspect the collection.
+
+Choose any of the six pieces, Ruby or Night Oath, and ruby or sapphire. Use **Close-up**, **Reset view**, and **Auto-rotate** to explore the cut surfaces, crown openings, gemstone interiors, and gold details. Drag to orbit; scroll or pinch to zoom.
+
+**Try Brilliance, then click the piece to shatter it.** Let the fragments settle, then orbit the scattered gemstones: their individual facets catch the light as you move around the pile. They remain on the floor for inspection. Click the debris or use **Restore piece** to bring the piece back.
+
+![A Brilliance ruby king shattering into hundreds of fragments, followed by a full camera orbit around the settled sparkling debris in Pieces View](docs/media/brilliance-shatter-orbit.gif)
+
+## Sharper at every size
+
+The chessboard and Pieces View now render at least at the native window resolution, with up to **2× pixel density** on high-density displays. **4× MSAA where supported, plus SMAA**, smooth the chessboard diagonals, piece silhouettes, and fine metalwork. This reduces the enlarged pixel blocks on big screens and the stair-step edges in smaller views.
 
 ## Ruby × Dusk Mirror
 
@@ -97,7 +118,7 @@ npm run dev -- --open '/pieces/ruby/'
 ```
 
 Choose Ruby or Night Oath, ruby or sapphire, and any of the six pieces in the
-collection panel. Drag to rotate and scroll to zoom. Click the piece to shatter
+collection panel. Both the board and gallery offer **Original** and **Brilliance** lighting. Use **Close-up**, **Reset view**, and **Auto-rotate** to inspect a piece; **Restore piece** brings shattered fragments back. Drag to rotate and scroll to zoom. Click the piece to shatter
 it with synchronized glass sounds; click the debris to restore it. On a narrow
 screen, open **Choose a piece** to switch pieces. With the scene focused, Enter or
 Space shatters/restores and Escape restores. Both original piece-viewer links
@@ -105,7 +126,7 @@ and the original shatter-demo link open this gallery.
 
 Drag to orbit and scroll to zoom. Select one of your pieces, then a highlighted legal destination. Captured pieces shatter while the capturing piece takes its square. The game enforces turns, check, castling, en passant and promotion (choose queen, rook, bishop or knight), and reports checkmate, stalemate, repetition, insufficient material and the fifty-move draw. AI calculation runs in a Web Worker so it does not block board input. If the engine fails to load, **Retry AI** resumes the current game.
 
-Use the top toolbar for 3D/top views and sound. **Customize** lets you choose a board and piece set; applying a style opens a fresh game setup. Phones start in top view. You can also Tab to the board, navigate squares with arrow keys, select or move with Enter/Space, and deselect with Esc. Keyboard directions follow the chosen side.
+Use the top toolbar for 3D/top views and sound. **Explore the Pieces** opens the gallery in a new tab; the separate **Gem lighting** buttons change lighting without restarting your game. **Customize** lets you choose a board and piece set; applying a style opens a fresh game setup. Phones start in top view. You can also Tab to the board, navigate squares with arrow keys, select or move with Enter/Space, and deselect with Esc. Keyboard directions follow the chosen side.
 
 ### Chess engine
 
@@ -118,7 +139,9 @@ Built with Three.js and Vite. Run `npm run build` for a production build.
 <details>
 <summary>Behind the visuals</summary>
 
-The cover and GIFs are captured from the project's actual models and shaders. Capture tools live in [`scripts/readme/`](scripts/readme/).
+The cover and GIFs are captured from the project's actual models and shaders. The Original/Brilliance comparison and shatter-orbit GIFs are recorded from the real Pieces View with deterministic camera and animation timing, using its existing fragment simulation, reflections, bloom, and antialiasing. Capture tools and regeneration instructions live in [`scripts/readme/`](scripts/readme/).
+
+The rendering budget limits extra high-density samples rather than dropping below the window's CSS resolution. Main views use up to 4× MSAA, followed by SMAA before display color conversion; device pixel density is capped at 2× and extra samples are budgeted to limit GPU cost.
 
 </details>
 

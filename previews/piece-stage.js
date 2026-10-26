@@ -2,6 +2,11 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { Reflector } from 'three/addons/objects/Reflector.js';
 import { jewelryStudio } from '../pieces/ruby/material.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { SMAAPass } from 'three/addons/postprocessing/SMAAPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { createGemEffects } from '../play/gem-effects.js';
 
 // The approved fracture stage is shared by both piece collections.
 export function createPieceStage(canvas, onError, invalidate) {
@@ -62,12 +67,15 @@ export function createPieceStage(canvas, onError, invalidate) {
       #include <colorspace_fragment>
     }`,
   };
-  const reflection = new Reflector(new THREE.PlaneGeometry(20, 20), { textureWidth: 768, textureHeight: 768, clipBias: .001, shader: reflectionShader });
+  const reflection = new Reflector(new THREE.PlaneGeometry(20, 20), { textureWidth: 1024, textureHeight: 1024, clipBias: .001, shader: reflectionShader, multisample: Math.min(4, renderer.capabilities.maxSamples) });
   reflection.rotation.x = -Math.PI / 2; reflection.position.y = .0005;
   reflection.material.transparent = true; reflection.material.depthWrite = false; reflection.renderOrder = 1;
   scene.add(reflection);
-
-
+  const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: Math.min(4, renderer.capabilities.maxSamples) }));
+  composer.addPass(new RenderPass(scene, camera));
+  const gemEffects = createGemEffects({ renderer, invalidate });
+  gemEffects.connectComposer(composer);
+  composer.addPass(new SMAAPass()); composer.addPass(new OutputPass());
   let framedHeight = .95, overlayOpen = false;
   function frame(height, reset = true) {
     const oldTarget = controls.target.clone();
@@ -83,8 +91,10 @@ export function createPieceStage(canvas, onError, invalidate) {
   function resize() {
     const panelSpace = innerWidth > 800 ? 282 : 0;
     const overlaySpace = innerWidth <= 800 && overlayOpen ? 250 : 0;
-    renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75, Math.sqrt(2400000 / (innerWidth * innerHeight))));
+    const ratio = Math.max(1, Math.min(devicePixelRatio, 2, Math.sqrt(8000000 / (innerWidth * innerHeight))));
+    renderer.setPixelRatio(ratio);
     renderer.setSize(innerWidth, innerHeight);
+    composer.setPixelRatio(ratio); composer.setSize(innerWidth, innerHeight);
     camera.aspect = innerWidth / innerHeight;
     camera.zoom = Math.min(1, (innerWidth - panelSpace) / innerHeight * .94) * (overlaySpace && innerWidth < 500 ? .8 : 1);
     camera.setViewOffset(innerWidth, innerHeight, (panelSpace + overlaySpace) / 2, 0, innerWidth, innerHeight);
@@ -93,5 +103,15 @@ export function createPieceStage(canvas, onError, invalidate) {
   controls.addEventListener('change', invalidate);
   window.addEventListener('resize', resize);
   resize(); frame(framedHeight);
-  return { renderer, scene, camera, controls, studio, frame, setPanelOpen(open) { overlayOpen = open; resize(); } };
+  return { renderer, scene, camera, controls, studio, gemEffects, frame,
+    render() { composer.render(); },
+    closeUp() {
+      const direction = camera.position.clone().sub(controls.target).normalize();
+      controls.target.set(0, framedHeight * .76, 0);
+      camera.position.copy(controls.target).addScaledVector(direction, Math.max(1.5, framedHeight * 1.25));
+      controls.update(); invalidate();
+    },
+    resetView() { frame(framedHeight); },
+    setPanelOpen(open) { overlayOpen = open; resize(); },
+  };
 }

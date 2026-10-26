@@ -85,13 +85,14 @@ export function mountBoard({createOverlay, interactive=false}={}) {
   document.querySelector('#ornament').onchange=e=>{model.ornaments.visible=e.target.checked;};
   document.querySelector('#finish').oninput=e=>{for(const material of model.materials)material.roughness=Number(e.target.value)/100;reflection.material.uniforms.polish.value=Number(e.target.value)/100;document.querySelector('#finish-value').value=e.target.value+'%';};
   // MSAA covers geometric edges; SMAA resolves the remaining high-contrast
-  // inlay stair-steps after tone mapping, without globally blurring the marble.
-  const target=new THREE.WebGLRenderTarget(1,1,{type:THREE.HalfFloatType,samples:Math.min(interactive?2:4,renderer.capabilities.maxSamples)});
+  // inlay stair-steps in linear color before OutputPass converts for display.
+  const target=new THREE.WebGLRenderTarget(1,1,{type:THREE.HalfFloatType,samples:Math.min(4,renderer.capabilities.maxSamples)});
   const composer=new EffectComposer(renderer,target);
   composer.addPass(new RenderPass(scene,camera));
+  context.gemEffects?.connectComposer(composer);
+  composer.addPass(new SMAAPass());
   composer.addPass(new OutputPass());
-  if(!interactive)composer.addPass(new SMAAPass());
-  configureViewport({renderer,camera,composer,interactive,invalidate,maxRatio:interactive?1.5:2,budget:interactive?1800000:6000000});
+  configureViewport({renderer,camera,composer,interactive,invalidate});
   controls.addEventListener('change',invalidate);
   document.querySelector('aside').addEventListener('input',invalidate);
   document.querySelector('aside').addEventListener('change',()=>{renderer.shadowMap.needsUpdate=true;invalidate();});

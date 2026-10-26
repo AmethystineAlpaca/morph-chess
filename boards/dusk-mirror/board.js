@@ -155,12 +155,14 @@ export function mountBoard({ createOverlay, interactive=false } = {}) {
     if (overlay?.group) { overlay.group.visible = true; document.querySelector('#show-pieces').checked = true; }
     setView('perspective');
   };
-  const target = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: Math.min(interactive?2:4, renderer.capabilities.maxSamples) });
+  const target = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: Math.min(4, renderer.capabilities.maxSamples) });
   const composer = new EffectComposer(renderer, target);
   composer.addPass(new RenderPass(scene, camera));
   const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), .19, .35, 1.1); composer.addPass(bloom);
-  composer.addPass(new OutputPass()); if(!interactive)composer.addPass(new SMAAPass());
-  configureViewport({renderer,camera,composer,interactive,invalidate,maxRatio:interactive?1.5:2,budget:interactive?1800000:3500000});
+  context.gemEffects?.connectComposer(composer,bloom);
+  composer.addPass(new SMAAPass());
+  composer.addPass(new OutputPass());
+  configureViewport({renderer,camera,composer,interactive,invalidate});
   setView('perspective');
   controls.addEventListener('change',invalidate);
   document.querySelector('aside').addEventListener('input',invalidate);

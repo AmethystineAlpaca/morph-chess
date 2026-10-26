@@ -1,3 +1,4 @@
+import '../play/gem-effects.css';
 import * as THREE from 'three';
 import { rubySet } from '../pieces/ruby/index.js';
 import { nightOathSet } from '../pieces/night-oath/index.js';
@@ -7,6 +8,7 @@ import { fractureMaterial } from '../pieces/ruby/fracture-material.js';
 import { FractureAudio } from '../pieces/ruby/fracture-audio.js';
 import { sampleFracture, FRACTURE_TIME, DURATION } from '../pieces/ruby/fracture-motion.js';
 import { createPieceStage } from './piece-stage.js';
+import { mountGemEffectSwitch } from '../play/gem-effects.js';
 import './piece-viewer.css';
 
 const icons = { pawn: '♟', rook: '♜', knight: '♞', bishop: '♝', queen: '♛', king: '♚' };
@@ -46,6 +48,7 @@ export function mountPieceViewer(initialSet = rubySet) {
     <button id="collection-toggle" aria-controls="collection-panel" aria-expanded="false"><span aria-hidden="true">▦</span>Choose a piece</button>
     <aside id="collection-panel" aria-label="Choose your piece">
       <div class="panel-heading"><span>Choose a piece</span><button id="collection-close" class="icon-button" aria-label="Close collection">×</button></div>
+      <div id="gallery-lighting"></div>
       <p class="option-label" id="theme-label">Theme</p>
       <div class="theme-options" role="group" aria-labelledby="theme-label">
         <button data-set="ruby" aria-label="Ruby, pure gemstone"><i class="theme-gem" aria-hidden="true"></i><span>Ruby<small>Pure gemstone</small></span></button>
@@ -59,6 +62,11 @@ export function mountPieceViewer(initialSet = rubySet) {
       <p class="option-label" id="piece-label">Piece</p>
       <div class="piece-options" role="group" aria-labelledby="piece-label">
         ${FRACTURE_PIECES.map(piece => `<button data-piece="${piece.type}" aria-label="${piece.name}"><span class="piece-symbol" aria-hidden="true">${icons[piece.type]}</span><span>${piece.name}</span></button>`).join('')}
+      </div>
+      <p class="option-label" id="inspect-label">Inspect</p>
+      <div class="inspect-options" role="group" aria-labelledby="inspect-label">
+        <button id="piece-close-up">Close-up</button><button id="piece-reset-view">Reset view</button>
+        <button id="piece-auto-rotate" aria-pressed="false">Auto-rotate</button><button id="piece-restore">Restore piece</button>
       </div>
     </aside>
     <div class="gallery-hint" data-state="loading" role="note" aria-label="How to interact">
@@ -79,6 +87,14 @@ export function mountPieceViewer(initialSet = rubySet) {
   let active = null, dirty = true, time = 0, playing = false, loading = true, selectionVersion = 0, actionVersion = 0;
   const stage = createPieceStage(canvas, message => { $('#gallery-error').hidden = false; $('#gallery-error').textContent = message; }, () => { dirty = true; });
   const { renderer, scene, camera, controls, studio } = stage;
+  $('#gallery-lighting').append(mountGemEffectSwitch(stage.gemEffects));
+  $('#piece-close-up').onclick = () => stage.closeUp();
+  $('#piece-reset-view').onclick = () => stage.resetView();
+  $('#piece-auto-rotate').onclick = () => {
+    controls.autoRotate = !controls.autoRotate; controls.autoRotateSpeed = .7;
+    $('#piece-auto-rotate').setAttribute('aria-pressed', String(controls.autoRotate)); dirty = true;
+  };
+  $('#piece-restore').onclick = () => restore();
   const sound = new FractureAudio([
     { url: new URL('../pieces/ruby/audio/break-wine-glass.wav', import.meta.url), gain: .7 },
     { url: new URL('../pieces/ruby/audio/breaking-glass-stereo.wav', import.meta.url), gain: .9 },
@@ -139,6 +155,7 @@ export function mountPieceViewer(initialSet = rubySet) {
     })) + .05;
     for (const shard of entry.shards) {
       const material = shard.metal ? shard.material : fractureMaterial(shard.geometry, studio.cube.texture);
+      if (!shard.metal) stage.gemEffects.register(material);
       const mesh = new THREE.Mesh(shard.geometry, material);
       if (!shard.metal) mesh.onBeforeRender = (_renderer, _scene, activeCamera) => {
         activeCamera.getWorldPosition(eye); material.uniforms.localEye.value.copy(mesh.worldToLocal(eye));
@@ -170,6 +187,7 @@ export function mountPieceViewer(initialSet = rubySet) {
     const key = `${set.id}/${type}`;
     if (!cache.has(key)) {
       const entry = { model: set.create(type, renderer), fragments: new THREE.Group(), shards: [], ready: false };
+      stage.gemEffects.apply(entry.model);
       entry.fragments.visible = false;
       cache.set(key, entry); entry.pending = prepare(entry, type);
     }
@@ -271,7 +289,7 @@ export function mountPieceViewer(initialSet = rubySet) {
     if (document.hidden) return;
     if (playing) { time = Math.min(DURATION, sound.time); if (time >= DURATION) stop(); update(); }
     controls.update();
-    if (dirty && active) { dirty = false; renderer.render(scene, camera); }
+    if (dirty && active) { dirty = false; stage.render(); }
   });
   select();
   return { restore };

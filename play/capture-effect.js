@@ -32,7 +32,7 @@ function landingTime(shards) {
   return last / 60;
 }
 
-export async function prepareCaptureEffect(model, piece, { renderer, camera, scene, appearance }) {
+export async function prepareCaptureEffect(model, piece, { renderer, camera, scene, appearance, gemEffects }) {
   // Baking in local coordinates avoids pulling debris toward the board origin.
   // Only the model is fractured, never its side ring or shared source geometry.
   const source = model.clone(true);
@@ -77,6 +77,7 @@ export async function prepareCaptureEffect(model, piece, { renderer, camera, sce
         }
       }
       materials.add(material);
+      if (!shard.metal) gemEffects?.register(material);
       material.transparent = true;
       material.depthWrite = false;
       const mesh = new THREE.Mesh(shard.geometry, material);

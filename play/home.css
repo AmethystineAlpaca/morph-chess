@@ -124,3 +124,11 @@
   .home .game-controls{grid-template-columns:1fr 1fr}
   .home .game-controls select{font-size:11px;padding:0 5px}
 }
+.home .explore-pieces{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:0 16px;margin-right:auto;border:1px solid #d7bf8260;border-radius:12px;background:#e8d7b4;color:#29231e;font:500 13px/1 Arial,sans-serif;text-decoration:none;pointer-events:auto;box-shadow:0 4px 24px #0002}
+.home .explore-pieces:hover{background:#fff0d1}.home .explore-pieces svg{width:18px;height:18px}.home .explore-pieces svg:last-child{width:15px}
+@media(max-width:1050px) and (min-width:701px){.home .play-header{gap:12px}.home .explore-pieces{padding:0 12px}.home .play-toolbar{gap:6px}.home .play-toolbar button,.home .scene-controls>summary{padding:0 10px}.home .play-brand span{font-size:10px}}
+@media(max-width:700px){.home .explore-pieces{position:absolute;top:64px;left:0;min-height:46px;padding:0 10px;gap:6px;font-size:12px}.home .explore-pieces svg:last-child{display:none}.home .view-switch{top:64px;left:auto;right:0;transform:none}.home .view-switch button{padding:0 10px;gap:6px;font-size:12px}.home .view-switch button svg{width:16px;height:16px}}
+@media(max-width:360px){.home .explore-pieces{font-size:11px;padding:0 8px}.home .view-switch button{padding:0 8px}.home .view-switch button svg{display:none}}
+.home .explore-pieces{position:absolute;left:50%;top:0;transform:translateX(-50%);margin:0;white-space:nowrap}
+@media(min-width:701px) and (max-width:1190px){.home .explore-pieces{top:62px}.home #app>.gem-effect-switch{top:130px}}
+@media(max-width:700px){.home .explore-pieces{top:64px;left:50%;padding:0 12px}.home .view-switch{top:64px;left:0;right:auto;transform:none}.home .view-switch button{width:38px;min-height:40px;padding:0}.home .view-switch button span{display:none}.home .view-switch button svg{display:block;width:18px;height:18px}}

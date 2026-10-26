@@ -1,7 +1,10 @@
+import './gem-effects.css';
 import { mountControls } from '../ui/controls.js';
 import { squareName } from './position.js';
+import { mountGemEffectSwitch } from './gem-effects.js';
 
 const icons = {
+  piece: '<path d="M9 3h6v3h3v4l-4 3v4l4 3v1H6v-1l4-3v-4l-4-3V6h3ZM6 6h12M10 17h4"/>',
   brand: '<path d="m12 2 8 7-8 13L4 9Zm-8 7h16M8 6l4 16 4-16"/>',
   perspective: '<path d="m12 3 9 5-9 5-9-5Zm-9 9 9 5 9-5M3 16l9 5 9-5"/>',
   top: '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 12h16M12 4v16"/>',
@@ -21,6 +24,7 @@ export function mountPlayInterface({ board, pieces, boards, pieceSets, context, 
   const header = document.createElement('header');
   header.className = 'play-header';
   header.innerHTML = `<div class="play-brand">${svg('brand')}<div><h1>Morph Chess</h1><span class="engine-badge">Powered by Stockfish AI</span></div></div>
+    <a class="explore-pieces" href="${import.meta.env.BASE_URL}pieces/${pieces.id}/?board=${board.id}" target="_blank" rel="noopener" aria-label="Explore the Pieces (opens in a new tab)">${svg('piece')}<span>Explore the Pieces</span>${svg('arrow')}</a>
     <nav class="play-toolbar" aria-label="Board controls">
       <div class="view-switch" role="group" aria-label="Board view">
         <button type="button" data-view="perspective" aria-label="Perspective view" title="Perspective view">${svg('perspective')}<span>3D view</span></button>
@@ -29,6 +33,7 @@ export function mountPlayInterface({ board, pieces, boards, pieceSets, context, 
       <button type="button" id="board-sound" class="play-tool sound-tool" aria-label="Sound" aria-pressed="true">${svg('sound')}<span>Sound</span></button>
     </nav>`;
   app.append(header);
+  if (context.gemEffects) app.append(mountGemEffectSwitch(context.gemEffects));
   const panel = document.createElement('section');
   panel.setAttribute('aria-label', 'Customize board');
   panel.innerHTML = `<h2>Board & pieces</h2>
@@ -45,7 +50,7 @@ export function mountPlayInterface({ board, pieces, boards, pieceSets, context, 
       <div><dt>Camera</dt><dd>Drag to orbit. Scroll or pinch to zoom.</dd></div>
       <div><dt>Keyboard</dt><dd>Tab to the board. Arrow keys to navigate, Enter to choose, Esc to deselect.</dd></div></dl>
     </details>
-    <nav class="settings-links"><a href="https://github.com/nmrugg/stockfish.js/tree/v19.0.1" target="_blank" rel="noopener">Stockfish 19 · Source</a><a href="${import.meta.env.BASE_URL}licenses/stockfish.txt" target="_blank" rel="noopener">Stockfish · GPL-3.0 license</a><a href="${import.meta.env.BASE_URL}pieces/${pieces.id}/?board=${board.id}">Explore the pieces ${svg('arrow')}</a></nav>`;
+    <nav class="settings-links"><a href="https://github.com/nmrugg/stockfish.js/tree/v19.0.1" target="_blank" rel="noopener">Stockfish 19 · Source</a><a href="${import.meta.env.BASE_URL}licenses/stockfish.txt" target="_blank" rel="noopener">Stockfish · GPL-3.0 license</a></nav>`;
   const controls = mountControls(panel);
   const toggle = controls.querySelector('summary');
   toggle.querySelector('span').textContent = 'Customize';
