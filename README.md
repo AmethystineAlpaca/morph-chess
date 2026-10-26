@@ -2,23 +2,33 @@
 
 ## [▶ Live Demo](https://amethystinealpaca.github.io/morph-chess/)
 
-Open the link and play in your browser — no download, installation, or commands required. Desktop and mobile supported. Sound starts after your first interaction; use the sound button to mute it.
+**Play against Stockfish AI directly in your browser.** Open the live demo on desktop or mobile — no download, installation, account, or local deployment required. The AI runs in your browser, too.
 
 [**Ruby × Dusk Mirror**](https://amethystinealpaca.github.io/morph-chess/?board=dusk-mirror&pieces=ruby) · [**Night Oath × Midnight Silver**](https://amethystinealpaca.github.io/morph-chess/?board=midnight-silver&pieces=night-oath) · [**Interactive piece gallery**](https://amethystinealpaca.github.io/morph-chess/pieces/ruby/)
+
+## Play against Stockfish AI
+
+1. **Choose your side:** **First · Ruby** plays White and moves first; **Second · Sapphire** plays Black and lets Stockfish open. The board automatically turns to face your side.
+2. **Choose a difficulty:** **Casual**, **Club**, or **Strong**, then press **Start game**.
+3. **Make your move:** select one of your pieces, then a highlighted legal destination. Use **Restart game** to begin again with your selected side and difficulty.
+
+- **Full chess rules:** legal moves, turn order, check, castling, en passant, and promotion to queen, rook, bishop, or knight.
+- **Game results:** checkmate, stalemate, threefold repetition, insufficient material, and the fifty-move draw.
+- **3D gemstone play:** captured pieces shatter, with 3D/top views and a mobile-friendly layout. Sound starts after your first interaction and can be muted.
+- **Clearly credited AI:** the game displays **Powered by Stockfish AI**. If the engine fails to load, **Retry AI** resumes the current game.
 
 ![Morph Chess — ruby and sapphire pieces on the Dusk Mirror board](docs/media/morph-chess-cover.png)
 
 [![Live Demo](https://img.shields.io/badge/Play-Live_Demo-537F69?style=flat&labelColor=292834)](https://amethystinealpaca.github.io/morph-chess/)
+[![AI: Stockfish](https://img.shields.io/badge/AI-Stockfish-B29660?style=flat&labelColor=292834)](#play-against-stockfish-ai)
 [![Demo: Watch video](https://img.shields.io/badge/Demo-Watch_video-8B6CB8?style=flat&labelColor=292834)](#full-recording)
 [![Platform: Web](https://img.shields.io/badge/Platform-Web-447DA7?style=flat&labelColor=292834)](#run-locally)
 [![3D: Three.js](https://img.shields.io/badge/3D-Three.js-B29660?style=flat&logo=threedotjs&logoColor=white&labelColor=292834)](https://threejs.org/)
 [![Code license: MIT](https://img.shields.io/badge/Code-MIT-537F69?style=flat&labelColor=292834)](LICENSE)
 
-Play international chess against Stockfish AI in a sculpted 3D gemstone board. Choose **First · Ruby** (White) or **Second · Sapphire** (Black), set the difficulty, then press **Start game**. The board faces your side automatically. **Restart game** starts a fresh game with your selected settings. Everything runs in your browser, including the AI; no account, local setup, or backend is needed.
-
 **We design our own chess pieces for Morph Chess**, from their silhouettes and proportions to gemstone materials and metal inlays. [Explore the concept art and design sheets →](docs/design/README.md)
 
-Added piece-shattering effects.
+Captures bring the board to life with piece-shattering effects.
 
 ![A gold-trimmed sapphire king on the left and an untrimmed ruby knight on the right shattering together](docs/media/piece-shattering.gif)
 
