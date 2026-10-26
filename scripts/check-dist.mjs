@@ -10,7 +10,8 @@ const entries = [
   'pieces/ruby/index.html', 'pieces/ruby/shatter.html',
   'pieces/night-oath/index.html', 'pieces/night-oath/collection.html',
   'LICENSE', 'pieces/ruby/audio/README.md', 'play/audio/CREDITS.txt',
-  'licenses/three.txt', 'licenses/vite.txt',
+  'licenses/three.txt', 'licenses/vite.txt', 'licenses/stockfish.txt', 'licenses/chess.js.txt',
+  'engine/stockfish-19-lite-single.js', 'engine/stockfish-19-lite-single.wasm',
 ];
 for (const entry of entries) assert.ok(statSync(join(directory, entry)).isFile(), `Missing ${entry}`);
 let count = 0;
@@ -35,3 +36,5 @@ function check(folder) {
 check(directory);
 assert.equal(readdirSync(join(directory, 'assets')).filter(name => name.endsWith('.wav')).length, 3);
 console.log(`Verified ${count} production files, 8 HTML entries, 3 sounds, asset paths and credits under ${base}`);
+
+assert.ok(statSync(join(directory, 'engine/stockfish-19-lite-single.wasm')).size > 1000000, 'Engine WASM must be included');

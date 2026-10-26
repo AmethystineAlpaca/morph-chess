@@ -1,5 +1,7 @@
 import * as THREE from 'three';
-import { initialPosition, movePiece, squareName } from './position.js';
+import { squareName } from './position.js';
+import { ChessGame, algebraic } from './game.js';
+import { StockfishEngine } from './engine.js';
 import { tablePieceFactory } from './piece-cache.js';
 import { createMoveSound } from './move-audio.js';
 import { FractureAudio } from '../pieces/ruby/fracture-audio.js';
@@ -7,10 +9,14 @@ import { prepareCaptureEffect, SILENT_BREAK_DURATION } from './capture-effect.js
 
 const names = { pawn: 'Pawn', rook: 'Rook', knight: 'Knight', bishop: 'Bishop', queen: 'Queen', king: 'King' };
 export function attachTable({ scene, renderer, camera, controls, sampleHeight, invalidate = () => {} }, pieceSet, onChange, { appearance } = {}) {
-  let pieces = initialPosition(pieceSet.availablePieces);
+  let game = new ChessGame();
+  let pieces = game.pieces.map(p => ({ ...p }));
+  let phase = 'idle', humanSide = 'white', difficulty = 'casual', engine = null;
+  let engineError = '', promotion = null, topView = false;
+  let animationDone = null;
   let selected = null;
   let hovered = null, lastAction = null, muted = false;
-  let message = 'Select a piece, then a destination square';
+  let message = 'Choose your side and start a game';
   const objects = new Map();
   const canvas = renderer.domElement;
   const moveSound = createMoveSound();
@@ -34,7 +40,7 @@ export function attachTable({ scene, renderer, camera, controls, sampleHeight, i
     black: new THREE.MeshBasicMaterial({ color: '#7184a5', side: THREE.DoubleSide }),
   };
   const createPiece = tablePieceFactory(pieceSet, renderer, appearance);
-  for (const piece of pieces) {
+  function addPiece(piece) {
     const model = createPiece(piece.type,piece.side,piece.id);
     const group = new THREE.Group();
     group.add(model);
@@ -52,8 +58,19 @@ export function attachTable({ scene, renderer, camera, controls, sampleHeight, i
     ring.position.y = .012;
     group.add(ring);
     group.userData.pieceId = piece.id;
+    group.userData.type = piece.type;
     objects.set(piece.id, group);
     scene.add(group);
+  }
+  pieces.forEach(addPiece);
+  function syncPieces() {
+    for (const piece of pieces) {
+      const object = objects.get(piece.id);
+      if (object && object.userData.type !== piece.type) { scene.remove(object); objects.delete(piece.id); }
+      if (!objects.has(piece.id)) addPiece(piece);
+      objects.get(piece.id).visible = true;
+    }
+    for (const [id, object] of objects) if (!pieces.some(p => p.id === id)) object.visible = false;
   }
   function squareMarker(color, opacity, width) {
     const shape = new THREE.Shape();
@@ -74,19 +91,25 @@ export function attachTable({ scene, renderer, camera, controls, sampleHeight, i
   }
   const marker = squareMarker('#ffe3a6', 1, .045);
   const hoverMarker = squareMarker('#eef3ff', .85, .022);
+  const legalMarkers = Array.from({ length: 32 }, () => squareMarker('#cce7ad', .85, .025));
+  function legalMoves() { return selected && phase === 'playing' && isHumanTurn() ? game.moves(algebraic(selected.file, selected.rank)) : []; }
+  function isHumanTurn() { return game.chess.turn() === (humanSide === 'white' ? 'w' : 'b'); }
   function getState() {
     return {
       pieces: pieces.map(piece => ({ ...piece })), selected: selected && { ...selected },
       hovered: hovered && { ...hovered, piece: pieces.find(piece => piece.file === hovered.file && piece.rank === hovered.rank) },
       capturing: capturing && { ...capturing }, lastAction, muted, message,
+      phase, humanSide, difficulty, engineError, promotion, legalSquares: [...new Set(legalMoves().map(m => m.to.toUpperCase()))],
+      check: game.chess.isCheck(), result: game.result(), humanTurn: isHumanTurn(),
+      history: game.chess.history(), fen: game.chess.fen(),
     };
   }
   function notify(text = message) { message = text; onChange(message, getState()); }
   function unlockSound() { moveSound.unlock(); breakSound?.unlock().catch(() => {}); }
-  function describe(piece) { return `${piece.side === 'white' ? 'Light' : 'Dark'} ${names[piece.type]} · ${squareName(piece.file, piece.rank)}`; }
+  function describe(piece) { return `${piece.side === 'white' ? 'Ruby' : 'Sapphire'} ${names[piece.type]} · ${squareName(piece.file, piece.rank)}`; }
   function select(piece) {
     selected = piece;
-    notify(piece ? `${describe(piece)} selected. Choose a destination.` : 'Select a piece, then a destination square');
+    notify(piece ? `${describe(piece)} selected. Choose a destination.` : 'Choose one of your pieces; highlighted squares are legal moves');
     update();
     invalidate();
   }
@@ -97,11 +120,7 @@ export function attachTable({ scene, renderer, camera, controls, sampleHeight, i
       effect.group.position.y = sampleHeight(effect.group.position.x, effect.group.position.z) + .01;
       if (timing.arrived && !effect.arrived) {
         effect.arrived = true;
-        movePiece(pieces, effect.moving.id, effect.target.file, effect.target.rank);
-        capturing = null;
-        lastAction = { kind: 'capture', piece: { ...effect.moving }, target: { ...effect.target } };
-        moveSound.play();
-        notify(`${describe(effect.moving)} · Captured ${effect.target.side === 'white' ? 'Light' : 'Dark'} ${names[effect.target.type]}`);
+        finishAnimation(effect.result);
       }
       if (timing.done) { effect.dispose(); debris.delete(effect); }
       invalidate();
@@ -110,6 +129,15 @@ export function attachTable({ scene, renderer, camera, controls, sampleHeight, i
       const x = piece.file - 3.5, z = 3.5 - piece.rank;
       objects.get(piece.id).position.set(x, sampleHeight(x, z) + .01, z);
     }
+    const moves = legalMoves();
+    const squares = [...new Set(moves.map(move => move.to))];
+    legalMarkers.forEach((hint, i) => {
+      hint.visible = !!squares[i];
+      if (squares[i]) {
+        const x = squares[i].charCodeAt(0) - 97 - 3.5, z = 3.5 - (Number(squares[i][1]) - 1);
+        hint.position.set(x, sampleHeight(x, z) + .035, z);
+      }
+    });
     marker.visible = !!selected;
     if (selected) marker.position.copy(objects.get(selected.id).position).y += .018;
     hoverMarker.visible = !!hovered && !capturing && !(selected?.file === hovered.file && selected?.rank === hovered.rank);
@@ -142,7 +170,7 @@ export function attachTable({ scene, renderer, camera, controls, sampleHeight, i
     const file = Math.floor(hit.x + 4), rank = Math.floor(4 - hit.z);
     return { file, rank, piece: pieces.find(item => item.file === file && item.rank === rank) };
   }
-  async function capture(moving, target) {
+  async function capture(moving, target, result) {
     const version = generation;
     capturing = target;
     select(null);
@@ -155,14 +183,13 @@ export function attachTable({ scene, renderer, camera, controls, sampleHeight, i
       effect = await prepareCaptureEffect(objects.get(target.id).children[0], target, { renderer, camera, scene, appearance });
     } catch (error) {
       if (version !== generation) return;
-      capturing = null;
-      select(moving);
-      notify('Could not finish the capture. Please try again.');
+      finishAnimation(result);
       console.error(error);
       return;
     }
     if (version !== generation) { effect.dispose(); return; }
     effect.group.position.copy(objects.get(target.id).position);
+    effect.result = result;
     effect.moving = moving;
     effect.target = target;
     effect.duration = SILENT_BREAK_DURATION;
@@ -184,20 +211,96 @@ export function attachTable({ scene, renderer, camera, controls, sampleHeight, i
     hovered = square ? { file: square.file, rank: square.rank } : null;
     update(); invalidate(); notify();
   }
+  function finishAnimation(result) {
+    pieces = game.pieces.map(p => ({ ...p }));
+    syncPieces();
+    capturing = null;
+    lastAction = { kind: result.target ? 'capture' : 'move', piece: result.moving, target: result.target, san: result.move.san };
+    moveSound.play();
+    const done = animationDone; animationDone = null;
+    done?.();
+  }
+  async function playMove(input) {
+    const version = generation;
+    message = '';
+    const result = game.move(input);
+    const moving = pieces.find(p => p.id === result.moving.id);
+    selected = null; promotion = null; phase = 'animating';
+    if (result.target) {
+      await new Promise(resolve => { animationDone = resolve; capture(moving, result.target, result); });
+    } else finishAnimation(result);
+    if (version !== generation) return;
+    phase = game.result() ? 'finished' : 'playing';
+    update(); invalidate(); notify();
+    if (phase === 'playing' && !isHumanTurn()) await computerMove();
+  }
+  async function computerMove() {
+    const version = generation;
+    phase = 'thinking'; notify();
+    try {
+      const history = game.chess.history({ verbose: true }).map(m => m.from + m.to + (m.promotion || ''));
+      const move = await engine.bestMove(history, difficulty);
+      if (version !== generation) return;
+      await playMove(move);
+    } catch (error) {
+      if (version !== generation) return;
+      engineError = error.message; phase = 'error'; notify();
+    }
+  }
+  function resetVisuals() {
+    generation++;
+    engine?.dispose(); engine = null;
+    animationDone?.(); animationDone = null;
+    capturing = null; selected = null; promotion = null; down = null;
+    breakSound?.stop();
+    for (const effect of debris) effect.dispose();
+    debris.clear();
+    game = new ChessGame(); pieces = game.pieces.map(p => ({ ...p }));
+    hovered = null; lastAction = null; engineError = ''; message = '';
+    syncPieces(); update(); invalidate();
+  }
+  async function startGame(side = humanSide, level = difficulty) {
+    resetVisuals(); humanSide = side; difficulty = level;
+    setView(topView); unlockSound();
+    await readyEngine();
+  }
+  async function readyEngine() {
+    const version = generation;
+    phase = 'loading'; engineError = ''; notify();
+    try {
+      engine?.dispose(); engine = new StockfishEngine();
+      await engine.init(difficulty);
+      if (version !== generation) return;
+      phase = game.result() ? 'finished' : 'playing'; notify();
+      if (phase === 'playing' && !isHumanTurn()) await computerMove();
+    } catch (error) {
+      if (version !== generation) return;
+      engineError = error.message; phase = 'error'; notify();
+    }
+  }
   function activateSquare(file, rank) {
-    if (capturing || !Number.isInteger(file) || !Number.isInteger(rank) || file < 0 || file > 7 || rank < 0 || rank > 7) return;
+    if (phase !== 'playing' || !isHumanTurn() || promotion || !Number.isInteger(file) || !Number.isInteger(rank) || file < 0 || file > 7 || rank < 0 || rank > 7) return;
     unlockSound();
     const target = pieces.find(piece => piece.file === file && piece.rank === rank);
-    if (!selected) { select(target || null); return; }
-    if (target === selected) { select(null); return; }
-    const moving = selected;
-    if (target?.side === moving.side) { select(target); return; }
-    if (target) { capture(moving, target); return; }
-    if (!movePiece(pieces, moving.id, file, rank)) return;
-    lastAction = { kind: 'move', piece: { ...moving } };
-    moveSound.play();
-    select(null);
-    notify(`${describe(moving)} · Moved`);
+    if (target?.side === humanSide) { select(target === selected ? null : target); return; }
+    if (!selected) { notify('Choose one of your own pieces'); return; }
+    const from = algebraic(selected.file, selected.rank), to = algebraic(file, rank);
+    const choices = game.moves(from).filter(move => move.to === to);
+    if (!choices.length) { notify('That move is not legal. Choose a highlighted square.'); return; }
+    if (choices.some(move => move.promotion)) { promotion = { from, to }; notify(); return; }
+    void playMove({ from, to });
+  }
+  function setView(top = false) {
+    topView = top;
+    const damping = controls.enableDamping;
+    controls.enableDamping = false; controls.update();
+    const direction = humanSide === 'black' ? -1 : 1;
+    controls.minPolarAngle = .001;
+    controls.target.set(0, .25, 0);
+    camera.position.set(...(top ? [0, innerWidth <= 700 ? 13.8 : 15.8, .01 * direction] : [6.6 * direction, 11.2, 12.9 * direction]));
+    if (!top && innerWidth <= 700) camera.position.multiplyScalar(1.08);
+    controls.update(); controls.enableDamping = damping;
+    invalidate();
   }
   canvas.addEventListener('pointerdown', event => {
     activePointers.add(event.pointerId);
@@ -234,27 +337,11 @@ export function attachTable({ scene, renderer, camera, controls, sampleHeight, i
     previewSquare,
     deselect() { select(null); },
     setMuted(value) { muted = !!value; moveSound.setMuted(muted); breakSound?.setMuted(muted); notify(); },
-    reset() {
-      generation++;
-      capturing = null;
-      down = null;
-      breakSound?.stop();
-      for (const effect of debris) effect.dispose();
-      debris.clear();
-      pieces = initialPosition(pieceSet.availablePieces);
-      hovered = null;
-      lastAction = null;
-      for (const object of objects.values()) object.visible = true;
-      select(null);
-      notify('Starting position restored');
-    },
-    view(top = false) {
-      controls.minPolarAngle = .001;
-      controls.target.set(0, .25, 0);
-      camera.position.set(...(top ? [0, innerWidth <= 700 ? 13.8 : 15.8, .01] : [6.6, 11.2, 12.9]));
-      if (!top && innerWidth <= 700) camera.position.multiplyScalar(1.08);
-      controls.update();
-      invalidate();
-    },
+    startGame,
+    retryEngine() { if (phase === 'error') { generation++; void readyEngine(); } },
+    promote(type) { if (promotion && ['q', 'r', 'b', 'n'].includes(type)) void playMove({ ...promotion, promotion: type }); },
+    cancelPromotion() { promotion = null; notify(); },
+    reset() { void startGame(); },
+    view: setView,
   };
 }

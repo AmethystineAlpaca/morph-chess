@@ -18,8 +18,8 @@ export function configureViewport({renderer,camera,composer,interactive=false,in
         camera.zoom = .76;
         camera.setViewOffset(width, height, Math.min(160, width * .19), 0, width, height);
       } else {
-        camera.zoom = compact ? Math.min(.8, camera.aspect / 1.12, .75 * Math.max(.25, (height - 230) / height)) : .9 * Math.max(.5, (height - 180) / height);
-        if (!compact) camera.setViewOffset(width, height, 0, 20, width, height);
+        camera.zoom = compact ? Math.min(.8, camera.aspect / 1.12, .75 * Math.max(.25, (height - 340) / height)) : .9 * Math.max(.5, (height - 260) / height);
+        camera.setViewOffset(width, height, 0, compact ? 65 : 80, width, height);
       }
     }
     camera.updateProjectionMatrix();invalidate();

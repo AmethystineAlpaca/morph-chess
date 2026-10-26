@@ -14,7 +14,7 @@ Open the link and play in your browser — no download, installation, or command
 [![3D: Three.js](https://img.shields.io/badge/3D-Three.js-B29660?style=flat&logo=threedotjs&logoColor=white&labelColor=292834)](https://threejs.org/)
 [![Code license: MIT](https://img.shields.io/badge/Code-MIT-537F69?style=flat&labelColor=292834)](LICENSE)
 
-A visual playground for chessboards and chess pieces. Morph Chess explores sculpted forms, rich materials, reflections, refraction, and light—with the focus currently on board and piece design. More features will follow as the project grows.
+Play international chess against Stockfish AI in a sculpted 3D gemstone board. Choose **First · Ruby** (White) or **Second · Sapphire** (Black), set the difficulty, then press **Start game**. The board faces your side automatically. **Restart game** starts a fresh game with your selected settings. Everything runs in your browser, including the AI; no account, local setup, or backend is needed.
 
 **We design our own chess pieces for Morph Chess**, from their silhouettes and proportions to gemstone materials and metal inlays. [Explore the concept art and design sheets →](docs/design/README.md)
 
@@ -93,9 +93,15 @@ screen, open **Choose a piece** to switch pieces. With the scene focused, Enter 
 Space shatters/restores and Escape restores. Both original piece-viewer links
 and the original shatter-demo link open this gallery.
 
-Drag to orbit, scroll to zoom, and select a piece followed by an empty square to move it. Click an opposing piece to capture it: it shatters, your piece takes its square while the fragments are still falling, and the debris fades after the glass sound ends. Clicking another piece on the same side only selects it, without movement, shattering, or sound. There are no turns or chess move restrictions.
+Drag to orbit and scroll to zoom. Select one of your pieces, then a highlighted legal destination. Captured pieces shatter while the capturing piece takes its square. The game enforces turns, check, castling, en passant and promotion (choose queen, rook, bishop or knight), and reports checkmate, stalemate, repetition, insufficient material and the fifty-move draw. AI calculation runs in a Web Worker so it does not block board input. If the engine fails to load, **Retry AI** resumes the current game.
 
-Use the top toolbar for 3D/top views and sound. **Customize** lets you choose a board and piece set, then apply the change to start a fresh board. The action card shows the selected piece and destination; phones start in top view. You can also Tab to the board, navigate squares with arrow keys, select or move with Enter/Space, and deselect with Esc. The labelled HTML grid stays synchronized with the 3D pieces for assistive tools.
+Use the top toolbar for 3D/top views and sound. **Customize** lets you choose a board and piece set; applying a style opens a fresh game setup. Phones start in top view. You can also Tab to the board, navigate squares with arrow keys, select or move with Enter/Space, and deselect with Esc. Keyboard directions follow the chosen side.
+
+### Chess engine
+
+Rules: [chess.js](https://github.com/jhlywa/chess.js) (BSD-2-Clause). AI: the unmodified **Stockfish.js 19.0.1 lite single-threaded WASM** build, distributed under GPL-3.0. The engine and WASM are served together under `engine/`; no CDN, cross-origin isolation headers, or remote AI service is required. Engine files are pinned to an exact npm version and copied by Vite for production. Casual, Club and Strong adjust Stockfish skill and thinking time; these labels do not promise an Elo rating.
+
+[Corresponding engine source and build scripts, v19.0.1](https://github.com/nmrugg/stockfish.js/tree/v19.0.1) · [Download source](https://github.com/nmrugg/stockfish.js/archive/refs/tags/v19.0.1.tar.gz) · [Published GPL license](https://amethystinealpaca.github.io/morph-chess/licenses/stockfish.txt). The source repository's build instructions include `node build.js --single-threaded --lite -f`. The UI's Customize panel also links the engine source and license.
 
 Built with Three.js and Vite. Run `npm run build` for a production build.
 

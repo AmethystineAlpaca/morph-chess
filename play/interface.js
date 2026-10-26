@@ -20,7 +20,7 @@ export function mountPlayInterface({ board, pieces, boards, pieceSets, context, 
   const app = document.querySelector('#app');
   const header = document.createElement('header');
   header.className = 'play-header';
-  header.innerHTML = `<div class="play-brand">${svg('brand')}<div><h1>Morph Chess</h1><span title="Move either side freely. No chess move restrictions.">Free play</span></div></div>
+  header.innerHTML = `<div class="play-brand">${svg('brand')}<div><h1>Morph Chess</h1><span class="engine-badge">Powered by Stockfish AI</span></div></div>
     <nav class="play-toolbar" aria-label="Board controls">
       <div class="view-switch" role="group" aria-label="Board view">
         <button type="button" data-view="perspective" aria-label="Perspective view" title="Perspective view">${svg('perspective')}<span>3D view</span></button>
@@ -38,12 +38,6 @@ export function mountPlayInterface({ board, pieces, boards, pieceSets, context, 
     <select id="piece-choice">${Object.values(pieceSets).map(item => `<option value="${item.id}">${item.name}</option>`).join('')}</select>
     <p class="settings-note" id="style-note">Applying a style starts a fresh board.</p>
     <button type="button" id="apply-style" class="primary-action" aria-describedby="style-note" disabled>Apply style ${svg('arrow')}</button>
-    <div class="reset-section">
-      <button type="button" id="reset-position">${svg('reset')}Reset board</button>
-      <div id="reset-confirmation" hidden><p>Restore the starting position?</p>
-        <div class="settings-row"><button type="button" id="keep-position">Keep playing</button><button type="button" id="confirm-reset">Reset board</button></div>
-      </div>
-    </div>
     <details class="advanced-settings"><summary>Controls</summary>
       <dl><div><dt>Move</dt><dd>Select a piece, then a square.</dd></div>
       <div><dt>Capture</dt><dd>Choose an opposing piece.</dd></div>
@@ -51,7 +45,7 @@ export function mountPlayInterface({ board, pieces, boards, pieceSets, context, 
       <div><dt>Camera</dt><dd>Drag to orbit. Scroll or pinch to zoom.</dd></div>
       <div><dt>Keyboard</dt><dd>Tab to the board. Arrow keys to navigate, Enter to choose, Esc to deselect.</dd></div></dl>
     </details>
-    <nav class="settings-links"><a href="${import.meta.env.BASE_URL}pieces/${pieces.id}/?board=${board.id}">Explore the pieces ${svg('arrow')}</a></nav>`;
+    <nav class="settings-links"><a href="https://github.com/nmrugg/stockfish.js/tree/v19.0.1" target="_blank" rel="noopener">Stockfish 19 · Source</a><a href="${import.meta.env.BASE_URL}licenses/stockfish.txt" target="_blank" rel="noopener">Stockfish · GPL-3.0 license</a><a href="${import.meta.env.BASE_URL}pieces/${pieces.id}/?board=${board.id}">Explore the pieces ${svg('arrow')}</a></nav>`;
   const controls = mountControls(panel);
   const toggle = controls.querySelector('summary');
   toggle.querySelector('span').textContent = 'Customize';
@@ -65,7 +59,36 @@ export function mountPlayInterface({ board, pieces, boards, pieceSets, context, 
       <div id="move-status" role="status" aria-live="polite" aria-atomic="true"><strong id="status-title">Choose a piece</strong><p id="status-detail">Then choose a destination.</p></div>
       <button type="button" id="clear-selection" aria-label="Clear selection" title="Clear selection (Esc)" hidden>${svg('close')}</button>
     </div>
+    <div class="game-controls" aria-label="Game controls">
+      <label>Your side<select id="player-side"><option value="white">First · Ruby</option><option value="black">Second · Sapphire</option></select></label>
+      <label>AI difficulty<select id="ai-level"><option value="casual">Casual</option><option value="club">Club</option><option value="strong">Strong</option></select></label>
+      <button type="button" id="start-game">Start game ${svg('arrow')}</button>
+      <button type="button" id="retry-engine" hidden>Retry AI</button>
+    </div>
     <p class="gesture-hint" id="board-gesture-hint"><span class="desktop-gesture">Drag to orbit <span aria-hidden="true">·</span> Scroll to zoom</span><span class="touch-gesture">Drag to orbit <span aria-hidden="true">·</span> Pinch to zoom</span></p>`;
+  const sideChoice = footer.querySelector('#player-side'), levelChoice = footer.querySelector('#ai-level');
+  const startButton = footer.querySelector('#start-game'), retryButton = footer.querySelector('#retry-engine');
+  const promotionDialog = document.createElement('dialog');
+  promotionDialog.className = 'game-dialog';
+  promotionDialog.setAttribute('aria-labelledby', 'promotion-title');
+  promotionDialog.innerHTML = `<h2 id="promotion-title">Promote your pawn</h2><p>Choose the piece for your promotion.</p><div class="promotion-options">${[['q','Queen'],['r','Rook'],['b','Bishop'],['n','Knight']].map(([value,label]) => `<button type="button" data-promote="${value}">${label}</button>`).join('')}</div><button type="button" data-cancel>Cancel</button>`;
+  const restartDialog = document.createElement('dialog');
+  restartDialog.className = 'game-dialog';
+  restartDialog.setAttribute('aria-labelledby', 'restart-title');
+  restartDialog.innerHTML = '<h2 id="restart-title">Start a new game?</h2><p>Your current game will be replaced. The new game uses your selected side and difficulty.</p><div class="dialog-actions"><button type="button" data-cancel>Keep playing</button><button type="button" data-restart>Restart game</button></div>';
+  app.append(promotionDialog, restartDialog);
+  const begin = () => { restartDialog.close(); void table.startGame(sideChoice.value, levelChoice.value); };
+  startButton.onclick = () => {
+    const state = table.getState();
+    if (state.phase !== 'idle' && state.phase !== 'finished' && state.history.length) restartDialog.showModal();
+    else begin();
+  };
+  restartDialog.querySelector('[data-restart]').onclick = begin;
+  restartDialog.querySelector('[data-cancel]').onclick = () => restartDialog.close();
+  retryButton.onclick = () => table.retryEngine();
+  promotionDialog.querySelector('[data-cancel]').onclick = () => table.cancelPromotion();
+  promotionDialog.addEventListener('cancel', () => table.cancelPromotion());
+  for (const button of promotionDialog.querySelectorAll('[data-promote]')) button.onclick = () => table.promote(button.dataset.promote);
   footer.querySelector('#clear-selection').onclick = () => table.deselect();
   const card = footer.querySelector('.action-card');
   const statusIcon = footer.querySelector('#status-icon');
@@ -83,7 +106,7 @@ export function mountPlayInterface({ board, pieces, boards, pieceSets, context, 
   grid.setAttribute('aria-describedby', 'board-keyboard-instructions');
   const instructions = document.createElement('p');
   instructions.id = 'board-keyboard-instructions'; instructions.className = 'visually-hidden';
-  instructions.textContent = 'Arrow keys choose a square. Enter or Space selects or moves. Escape clears selection. Pieces move freely; choosing another piece on the same side switches selection.';
+  instructions.textContent = 'Arrow keys choose a square. Enter or Space selects or moves. Escape clears selection. Only legal moves are allowed. Choose your own piece, then a highlighted square.';
   const cells = new Map();
   let focused = 'A1';
   for (let rank = 7; rank >= 0; rank--) {
@@ -98,11 +121,12 @@ export function mountPlayInterface({ board, pieces, boards, pieceSets, context, 
         table.previewSquare({ file, rank });
       };
       cell.onkeydown = event => {
+        const direction = table.getState().humanSide === 'black' ? -1 : 1;
         let nextFile = file, nextRank = rank;
-        if (event.key === 'ArrowLeft') nextFile--;
-        else if (event.key === 'ArrowRight') nextFile++;
-        else if (event.key === 'ArrowUp') nextRank++;
-        else if (event.key === 'ArrowDown') nextRank--;
+        if (event.key === 'ArrowLeft') nextFile -= direction;
+        else if (event.key === 'ArrowRight') nextFile += direction;
+        else if (event.key === 'ArrowUp') nextRank += direction;
+        else if (event.key === 'ArrowDown') nextRank -= direction;
         else if (event.key === 'Home') nextFile = 0;
         else if (event.key === 'End') nextFile = 7;
         else return;
@@ -121,31 +145,30 @@ export function mountPlayInterface({ board, pieces, boards, pieceSets, context, 
   function setText(element, text) { if (element.textContent !== text) element.textContent = text; }
   function update(state) {
     const { selected, capturing, hovered, lastAction, muted } = state;
-    let title = 'Choose a piece', detail = 'Then choose a destination.';
+    const { phase, humanSide, humanTurn, check, result, promotion, engineError } = state;
+    let title = 'Ready to play?', detail = 'Choose your side and difficulty, then start a game.';
     const activePiece = selected || capturing || lastAction?.piece;
-    card.dataset.state = capturing ? 'capturing' : selected ? 'selected' : 'idle';
-    if (capturing) {
-      title = `Capturing ${pieceName(capturing)}`; detail = `Taking ${squareName(capturing.file, capturing.rank)}…`;
-    } else if (selected) {
-      title = `${pieceName(selected)} · ${squareName(selected.file, selected.rank)}`;
-      detail = 'Choose an empty square or an opponent.';
-      if (hovered && (hovered.file !== selected.file || hovered.rank !== selected.rank)) {
-        detail = hovered.piece ? hovered.piece.side === selected.side ? `Select ${pieceName(hovered.piece)} instead` : `Capture ${pieceName(hovered.piece)} · ${squareName(hovered.file, hovered.rank)}` : `Move to ${squareName(hovered.file, hovered.rank)}`;
-      }
-    } else if (lastAction) {
-      title = `${pieceName(lastAction.piece)} → ${squareName(lastAction.piece.file, lastAction.piece.rank)}`;
-      detail = lastAction.kind === 'capture' ? `Captured ${pieceName(lastAction.target)}. Choose your next piece.` : 'Choose your next piece.';
-    } else if (state.message === 'Starting position restored') {
-      title = 'Board reset'; detail = 'Choose any piece to begin.';
+    card.dataset.state = phase;
+    if (phase === 'loading') { title = 'Loading Stockfish…'; detail = 'Preparing your AI opponent.'; }
+    if (phase === 'thinking') { title = 'Stockfish is thinking…'; detail = `You play ${humanSide === 'white' ? 'Ruby · White' : 'Sapphire · Black'}.`; }
+    if (phase === 'animating') { title = capturing ? `Capturing ${pieceName(capturing)}` : 'Moving…'; detail = 'The next turn begins when the move finishes.'; }
+    if (phase === 'playing') {
+      title = check ? 'Your king is in check' : 'Your turn';
+      detail = `${humanSide === 'white' ? 'Ruby · White' : 'Sapphire · Black'} · Select a piece to see legal moves.`;
+      if (selected) { title = `${pieceName(selected)} · ${squareName(selected.file, selected.rank)}`; detail = 'Choose a highlighted square.'; }
+      if (state.message.startsWith('That move') || state.message.startsWith('Choose one of your own')) detail = state.message;
+      if (promotion) { title = 'Choose a promotion'; detail = 'Queen, rook, bishop or knight.'; }
     }
-    if (state.message.startsWith('Could not')) { title = 'Capture interrupted'; detail = 'Choose a destination to try again.'; }
-    if (!capturing && grid.contains(document.activeElement)) {
-      if (selected?.id && selected.id === hovered?.piece?.id) detail = 'Arrow keys to choose a destination.';
-      else {
-        const action = selected && hovered?.piece && hovered.piece.side !== selected.side ? 'capture' : selected && !hovered?.piece ? 'move' : 'select';
-        detail = `${focused} · ${hovered?.piece ? pieceName(hovered.piece) : 'Empty square'} · Enter to ${action}`;
-      }
-    }
+    if (phase === 'finished') { title = result; detail = 'Select a side and start another game.'; }
+    if (phase === 'error') { title = 'AI connection interrupted'; detail = engineError; }
+    if (lastAction && phase === 'playing' && !selected) detail += ` Last move: ${lastAction.san}.`;
+    startButton.innerHTML = `${phase === 'idle' ? 'Start game' : 'Restart game'} ${svg('arrow')}`;
+    retryButton.hidden = phase !== 'error';
+    if (promotion && !promotionDialog.open) promotionDialog.showModal();
+    if (!promotion && promotionDialog.open) promotionDialog.close();
+    grid.dataset.orientation = humanSide;
+    grid.dataset.phase = phase;
+    grid.dataset.fen = state.fen;
     setText(statusTitle, title); setText(statusDetail, detail);
     const nextIcon = activePiece ? `${activePiece.side}/${activePiece.type}` : 'pointer';
     if (statusIcon.dataset.piece !== nextIcon) {
@@ -153,16 +176,16 @@ export function mountPlayInterface({ board, pieces, boards, pieceSets, context, 
       statusIcon.innerHTML = activePiece ? glyphs[activePiece.type] : svg('pointer');
     }
     footer.querySelector('#clear-selection').hidden = !selected || !!capturing;
-    grid.setAttribute('aria-busy', String(!!capturing));
+    grid.setAttribute('aria-busy', String(['loading', 'thinking', 'animating'].includes(phase)));
     const occupied = new Map(state.pieces.map(piece => [squareName(piece.file, piece.rank), piece]));
     for (const [name, cell] of cells) {
       const piece = occupied.get(name), label = `${name}, ${piece ? pieceName(piece) : 'empty'}`;
       if (cell.getAttribute('aria-label') !== label) { cell.setAttribute('aria-label', label); cell.textContent = label; }
       cell.setAttribute('aria-selected', String(!!piece && piece.id === selected?.id));
-      cell.setAttribute('aria-disabled', String(!!capturing));
+      cell.setAttribute('aria-disabled', String(phase !== 'playing' || !humanTurn || !!promotion));
+      cell.dataset.legal = String(state.legalSquares.includes(name));
       if (piece) cell.dataset.pieceId = piece.id; else delete cell.dataset.pieceId;
     }
-    panel.querySelector('#reset-position').disabled = !lastAction && !capturing;
     if (soundState !== muted) {
       soundState = muted; soundButton.innerHTML = `${svg(muted ? 'muted' : 'sound')}<span>Sound</span>`;
       soundButton.setAttribute('aria-pressed', String(!muted)); soundButton.title = muted ? 'Turn sound on' : 'Mute sound';
@@ -183,12 +206,6 @@ export function mountPlayInterface({ board, pieces, boards, pieceSets, context, 
     url.searchParams.set('board', boardChoice.value); url.searchParams.set('pieces', pieceChoice.value);
     location.assign(url);
   };
-  const confirmation = panel.querySelector('#reset-confirmation'), reset = panel.querySelector('#reset-position');
-  function closeConfirmation() { confirmation.hidden = true; reset.hidden = false; }
-  reset.onclick = () => { reset.hidden = true; confirmation.hidden = false; panel.querySelector('#keep-position').focus(); };
-  panel.querySelector('#keep-position').onclick = () => { closeConfirmation(); reset.focus(); };
-  panel.querySelector('#confirm-reset').onclick = () => { table.reset(); closeConfirmation(); controls.open = false; toggle.focus(); };
-  controls.addEventListener('toggle', () => { if (!controls.open) closeConfirmation(); });
   function updateView() {
     const top = context.controls.getPolarAngle() < .02;
     for (const button of header.querySelectorAll('[data-view]')) button.setAttribute('aria-pressed', String((button.dataset.view === 'top') === top));

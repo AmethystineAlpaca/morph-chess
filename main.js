@@ -14,7 +14,7 @@ const context = board.mount({ interactive: true, createOverlay: context => {
   return table;
 } });
 document.body.classList.add('home');
-document.title = 'Morph Chess · Free Play';
+document.title = 'Morph Chess · Stockfish AI';
 document.querySelector('aside').hidden = true;
 interfaceView = mountPlayInterface({ board, pieces, boards: visibleBoards, pieceSets, context, table });
 
