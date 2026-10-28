@@ -125,7 +125,7 @@ document.querySelector('#grid').onchange=e=>{
 };
 document.querySelector('#pause').onclick=e=>{paused=!paused;e.target.textContent=paused?'Resume animation':'Pause animation';e.target.setAttribute('aria-pressed',String(paused));};
 document.querySelectorAll('[data-theme]').forEach(button=>button.onclick=()=>{palette=palettes[button.dataset.theme];liquidMaterial.color.set(palette.liquid);liquidMaterial.attenuationColor.set(palette.deep);surfaceMaterial.attenuationColor.set(palette.deep);if(!document.querySelector('#grid').checked)surfaceMaterial.color.set(palette.liquid);paintChecker();floorUniforms.lightColor.value.set(palette.light);floorUniforms.darkColor.value.set(palette.dark);document.querySelectorAll('[data-theme]').forEach(b=>b.classList.toggle('active',b===button));});
-configureViewport({renderer,camera,interactive,invalidate,maxRatio:1.25,budget:1800000});
+const viewport = configureViewport({renderer,camera,interactive,invalidate,maxRatio:1.25,budget:1800000});
 controls.addEventListener('change',invalidate);
 document.querySelector('aside').addEventListener('input',invalidate);
 document.querySelector('aside').addEventListener('click',invalidate);
@@ -149,7 +149,7 @@ for(const {geometry:g,k} of sides){const p=g.attributes.position;for(let i=0;i<p
 geometry.userData.initialized=true;}
 overlay?.update?.();
 renderer.info.reset();renderer.render(scene,camera);}
-const context={scene,renderer,camera,controls,sampleHeight:height,squareSize:1,invalidate};
+const context={scene,renderer,camera,controls,sampleHeight:height,squareSize:1,invalidate,viewport};
 const overlay=createOverlay?.(context);
 resetDefaults();paused=!debug.motion;renderer.shadowMap.needsUpdate=true;animate();
 if(!interactive)mountControls();

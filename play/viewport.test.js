@@ -32,6 +32,20 @@ test('viewport stays native on large displays and keeps HiDPI composer buffers i
       assert.equal(renderer.domElement.style.width, width + 'px');
     }
     assert.equal(invalidations, 7);
+    const projection = camera.projectionMatrix.clone();
+    resize.setQuality('performance');
+    assert.equal(resize.getQuality(), 'performance');
+    assert.equal(renderer.ratio, 1);
+    assert.equal(composer.ratio, 1);
+    assert.deepEqual(camera.projectionMatrix, projection, 'quality preserves framing');
+    globalThis.innerWidth = 390; globalThis.innerHeight = 844;
+    resizeListener();
+    assert.equal(renderer.ratio, 1, 'performance choice survives resizing');
+    resize.setQuality('unknown');
+    assert.equal(resize.getQuality(), 'performance');
+    resize.setQuality('high');
+    assert.equal(renderer.ratio, 2);
+    assert.equal(composer.ratio, 2);
   } finally {
     keys.forEach((key, index) => { if (previous[index]) Object.defineProperty(globalThis, key, previous[index]); else delete globalThis[key]; });
   }

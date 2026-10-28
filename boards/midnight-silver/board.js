@@ -92,7 +92,7 @@ export function mountBoard({createOverlay, interactive=false}={}) {
   context.gemEffects?.connectComposer(composer);
   composer.addPass(new SMAAPass());
   composer.addPass(new OutputPass());
-  configureViewport({renderer,camera,composer,interactive,invalidate});
+  context.viewport = configureViewport({renderer,camera,composer,interactive,invalidate});
   controls.addEventListener('change',invalidate);
   document.querySelector('aside').addEventListener('input',invalidate);
   document.querySelector('aside').addEventListener('change',()=>{renderer.shadowMap.needsUpdate=true;invalidate();});

@@ -162,7 +162,7 @@ export function mountBoard({ createOverlay, interactive=false } = {}) {
   context.gemEffects?.connectComposer(composer,bloom);
   composer.addPass(new SMAAPass());
   composer.addPass(new OutputPass());
-  configureViewport({renderer,camera,composer,interactive,invalidate});
+  context.viewport = configureViewport({renderer,camera,composer,interactive,invalidate});
   setView('perspective');
   controls.addEventListener('change',invalidate);
   document.querySelector('aside').addEventListener('input',invalidate);

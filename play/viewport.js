@@ -1,6 +1,7 @@
 // Fit the scene while keeping interactive play clear of the toolbar and hints.
 export function configureViewport({renderer,camera,composer,interactive=false,invalidate=()=>{},maxRatio=2,budget=8000000}) {
   const canvas=renderer.domElement;
+  let quality = 'high';
   function resize() {
     const compact=innerWidth<=700;
     const width=innerWidth;
@@ -10,7 +11,7 @@ export function configureViewport({renderer,camera,composer,interactive=false,in
     // The budget limits HiDPI supersampling, never the native CSS resolution.
     // A fixed low pixel budget otherwise enlarges a sub-resolution image on
     // desktop monitors, undoing even multisample and post-process antialiasing.
-    const ratio=Math.max(1,Math.min(devicePixelRatio,maxRatio,Math.sqrt(budget/(width*height))));
+    const ratio=quality === 'performance' ? 1 : Math.max(1,Math.min(devicePixelRatio,maxRatio,Math.sqrt(budget/(width*height))));
     renderer.setPixelRatio(ratio);renderer.setSize(width,height,false);
     composer?.setPixelRatio(ratio);composer?.setSize(width,height);
     camera.clearViewOffset();camera.aspect=width/height;
@@ -27,6 +28,12 @@ export function configureViewport({renderer,camera,composer,interactive=false,in
     }
     camera.updateProjectionMatrix();invalidate();
   }
+  resize.setQuality = value => {
+    if (!['high', 'performance'].includes(value)) return;
+    quality = value;
+    resize();
+  };
+  resize.getQuality = () => quality;
   window.addEventListener('resize',resize);resize();
   renderer.info.autoReset=false;
   return resize;

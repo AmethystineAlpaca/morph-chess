@@ -13,7 +13,8 @@ export function attachTable({ scene, renderer, camera, controls, sampleHeight, g
   let pieces = game.pieces.map(p => ({ ...p }));
   let phase = 'idle', humanSide = 'white', difficulty = 'casual', engine = null;
   let engineError = '', promotion = null, topView = false;
-  let animationDone = null;
+  let animationDone = null, pendingCapture = null;
+  let shatterEnabled = true;
   let selected = null;
   let hovered = null, lastAction = null, muted = false;
   let message = 'Choose your side and start a game';
@@ -99,7 +100,7 @@ export function attachTable({ scene, renderer, camera, controls, sampleHeight, g
     return {
       pieces: pieces.map(piece => ({ ...piece })), selected: selected && { ...selected },
       hovered: hovered && { ...hovered, piece: pieces.find(piece => piece.file === hovered.file && piece.rank === hovered.rank) },
-      capturing: capturing && { ...capturing }, lastAction, muted, message,
+      capturing: capturing && { ...capturing }, lastAction, muted, shatterEnabled, message,
       phase, humanSide, difficulty, engineError, promotion, legalSquares: [...new Set(legalMoves().map(m => m.to.toUpperCase()))],
       check: game.chess.isCheck(), result: game.result(), humanTurn: isHumanTurn(),
       history: game.chess.history(), fen: game.chess.fen(),
@@ -178,17 +179,17 @@ export function attachTable({ scene, renderer, camera, controls, sampleHeight, g
     notify(`${describe(moving)} · Capturing ${describe(target)}`);
     // Paint the click feedback before preparing the actual target's cuts.
     await new Promise(resolve => requestAnimationFrame(resolve));
-    if (version !== generation) return;
+    if (version !== generation || pendingCapture !== result) return;
     let effect;
     try {
       effect = await prepareCaptureEffect(objects.get(target.id).children[0], target, { renderer, camera, scene, appearance, gemEffects });
     } catch (error) {
-      if (version !== generation) return;
+      if (version !== generation || pendingCapture !== result) return;
       finishAnimation(result);
       console.error(error);
       return;
     }
-    if (version !== generation) { effect.dispose(); return; }
+    if (version !== generation || pendingCapture !== result) { effect.dispose(); return; }
     effect.group.position.copy(objects.get(target.id).position);
     effect.result = result;
     effect.moving = moving;
@@ -213,6 +214,7 @@ export function attachTable({ scene, renderer, camera, controls, sampleHeight, g
     update(); invalidate(); notify();
   }
   function finishAnimation(result) {
+    pendingCapture = null;
     pieces = game.pieces.map(p => ({ ...p }));
     syncPieces();
     capturing = null;
@@ -227,7 +229,8 @@ export function attachTable({ scene, renderer, camera, controls, sampleHeight, g
     const result = game.move(input);
     const moving = pieces.find(p => p.id === result.moving.id);
     selected = null; promotion = null; phase = 'animating';
-    if (result.target) {
+    if (result.target && shatterEnabled) {
+      pendingCapture = result;
       await new Promise(resolve => { animationDone = resolve; capture(moving, result.target, result); });
     } else finishAnimation(result);
     if (version !== generation) return;
@@ -251,7 +254,7 @@ export function attachTable({ scene, renderer, camera, controls, sampleHeight, g
   function resetVisuals() {
     generation++;
     engine?.dispose(); engine = null;
-    animationDone?.(); animationDone = null;
+    animationDone?.(); animationDone = null; pendingCapture = null;
     capturing = null; selected = null; promotion = null; down = null;
     breakSound?.stop();
     for (const effect of debris) effect.dispose();
@@ -338,6 +341,17 @@ export function attachTable({ scene, renderer, camera, controls, sampleHeight, g
     previewSquare,
     deselect() { select(null); },
     setMuted(value) { muted = !!value; moveSound.setMuted(muted); breakSound?.setMuted(muted); notify(); },
+    setShatterEnabled(value) {
+      shatterEnabled = !!value;
+      if (!shatterEnabled) {
+        breakSound?.stop();
+        for (const effect of debris) effect.dispose();
+        debris.clear();
+        if (pendingCapture) finishAnimation(pendingCapture);
+        update(); invalidate();
+      }
+      notify();
+    },
     startGame,
     retryEngine() { if (phase === 'error') { generation++; void readyEngine(); } },
     promote(type) { if (promotion && ['q', 'r', 'b', 'n'].includes(type)) void playMove({ ...promotion, promotion: type }); },

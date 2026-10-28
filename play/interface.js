@@ -33,10 +33,28 @@ export function mountPlayInterface({ board, pieces, boards, pieceSets, context, 
       <button type="button" id="board-sound" class="play-tool sound-tool" aria-label="Sound" aria-pressed="true">${svg('sound')}<span>Sound</span></button>
     </nav>`;
   app.append(header);
-  if (context.gemEffects) app.append(mountGemEffectSwitch(context.gemEffects));
+  const displayCard = context.gemEffects ? mountGemEffectSwitch(context.gemEffects) : document.createElement('section');
+  displayCard.classList.add('gem-effect-switch');
+  const smoothControls = document.createElement('div');
+  smoothControls.className = 'smooth-controls';
+  smoothControls.innerHTML = `<button type="button" id="smooth-play" aria-describedby="smooth-play-note"><span>Feeling laggy?</span><strong>Use smooth play ${svg('arrow')}</strong></button><p id="smooth-play-note">Lower resolution · No shattering</p>`;
+  displayCard.append(smoothControls);
+  app.append(displayCard);
+  const smoothButton = smoothControls.querySelector('button');
   const panel = document.createElement('section');
   panel.setAttribute('aria-label', 'Customize board');
-  panel.innerHTML = `<h2>Board & pieces</h2>
+  panel.innerHTML = `<h2>Settings</h2>
+    <h3>Performance</h3>
+    <p class="settings-note">Adjust these any time. Your game stays in place.</p>
+    <label for="render-quality">Graphics quality</label>
+    <select id="render-quality" aria-describedby="quality-note"><option value="high">High · Sharper detail</option><option value="performance">Performance · Standard resolution</option></select>
+    <p class="settings-note" id="quality-note">Try Performance if the board feels slow. It lowers resolution on high-density screens.</p>
+    <label for="capture-animation">Capture animation</label>
+    <select id="capture-animation" aria-describedby="capture-note"><option value="on">Shatter pieces</option><option value="off">Off · Instant captures</option></select>
+    <p class="settings-note" id="capture-note">Turn off shattering if the game pauses when a piece is captured.</p>
+    <button type="button" id="restore-visuals">Restore visual defaults</button>
+    <p class="settings-note" id="performance-status" role="status" aria-live="polite"></p>
+    <h3 class="settings-divider">Board & pieces</h3>
     <label for="board-choice">Board</label>
     <select id="board-choice">${Object.values(boards).map(item => `<option value="${item.id}">${item.name}</option>`).join('')}</select>
     <label for="piece-choice">Pieces</label>
@@ -201,6 +219,53 @@ export function mountPlayInterface({ board, pieces, boards, pieceSets, context, 
     try { localStorage.setItem('morph-chess-muted', String(muted)); } catch { /* Optional preference. */ }
   };
   try { table.setMuted(localStorage.getItem('morph-chess-muted') === 'true'); } catch { /* Storage can be disabled. */ }
+  const captureChoice = panel.querySelector('#capture-animation');
+  const qualityChoice = panel.querySelector('#render-quality');
+  let shatter = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let quality = 'high';
+  try {
+    const saved = localStorage.getItem('morph-chess-shatter');
+    if (saved === 'true' || saved === 'false') shatter = saved === 'true';
+    if (localStorage.getItem('morph-chess-quality') === 'performance') quality = 'performance';
+  } catch { /* Preferences also work without storage. */ }
+  const performanceStatus = panel.querySelector('#performance-status');
+  function applyPerformance({ save = true, announce = true } = {}) {
+    captureChoice.value = shatter ? 'on' : 'off';
+    qualityChoice.value = quality;
+    table.setShatterEnabled(shatter);
+    context.viewport?.setQuality(quality);
+    const smooth = !shatter && quality === 'performance';
+    smoothButton.innerHTML = smooth
+      ? `<span>Smooth play is on</span><strong>Adjust ${svg('arrow')}</strong>`
+      : `<span>Feeling laggy?</span><strong>Use smooth play ${svg('arrow')}</strong>`;
+    smoothButton.dataset.active = String(smooth);
+    smoothButton.setAttribute('aria-label', smooth ? 'Smooth play is on. Adjust performance settings' : 'Use smooth play');
+    if (announce) performanceStatus.textContent = smooth
+      ? 'Smooth play is on. Your game is ready to continue.'
+      : `${quality === 'high' ? 'High detail' : 'Standard resolution'} · Shattering ${shatter ? 'on' : 'off'}. Your game stays in place.`;
+    if (save) {
+      try {
+        localStorage.setItem('morph-chess-shatter', String(shatter));
+        localStorage.setItem('morph-chess-quality', quality);
+      } catch { /* Preferences also work without storage. */ }
+    }
+  }
+  applyPerformance({ save: false, announce: false });
+  captureChoice.onchange = () => { shatter = captureChoice.value === 'on'; applyPerformance(); };
+  qualityChoice.onchange = () => { quality = qualityChoice.value; applyPerformance(); };
+  smoothButton.onclick = () => {
+    if (!shatter && quality === 'performance') {
+      controls.open = true;
+      panel.scrollTop = 0;
+      qualityChoice.focus({ preventScroll: true });
+    } else {
+      shatter = false; quality = 'performance'; applyPerformance();
+    }
+  };
+  panel.querySelector('#restore-visuals').onclick = () => {
+    shatter = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    quality = 'high'; applyPerformance();
+  };
   const boardChoice = panel.querySelector('#board-choice'), pieceChoice = panel.querySelector('#piece-choice');
   boardChoice.value = board.id; pieceChoice.value = pieces.id;
   const apply = panel.querySelector('#apply-style');

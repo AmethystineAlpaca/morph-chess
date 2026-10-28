@@ -15,6 +15,7 @@
 - **Full chess rules:** legal moves, turn order, check, castling, en passant, and promotion to queen, rook, bishop, or knight.
 - **Game results:** checkmate, stalemate, threefold repetition, insufficient material, and the fifty-move draw.
 - **3D gemstone play:** captured pieces shatter, with 3D/top views and a mobile-friendly layout. Sound starts after your first interaction and can be muted.
+- **Performance settings:** the visible **Feeling laggy? Use smooth play** button instantly lowers rendering resolution and disables shattering without restarting your game. Its **Adjust** action opens performance settings at the top of **Customize**; **Restore visual defaults** brings back high detail and respects your system’s reduced-motion preference. You can also turn **Capture animation** off for instant captures, or choose **Performance** graphics to render at standard resolution on high-density screens. Both apply immediately without restarting your game and are remembered on this device. Shattering defaults to off when your system requests reduced motion.
 - **Clearly credited AI:** the game displays **Powered by Stockfish AI**. If the engine fails to load, **Retry AI** resumes the current game.
 
 ![Morph Chess — ruby and sapphire pieces on the Dusk Mirror board](docs/media/morph-chess-cover.png)
